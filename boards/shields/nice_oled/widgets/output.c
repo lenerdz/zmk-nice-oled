@@ -68,6 +68,11 @@ void draw_output_status(lv_obj_t *canvas, const struct status_state *state) {
         break;
 
     case ZMK_TRANSPORT_BLE:
+    case ZMK_TRANSPORT_NONE:
+    default:
+        // ZMK main reports ZMK_TRANSPORT_NONE while no transport is ready (USB not
+        // enumerated and the active BLE profile not connected). Draw the state of the
+        // active BLE profile (unbonded / no signal) instead of leaving the slot blank.
         if (state->active_profile_bonded) {
             if (state->active_profile_connected) {
                 draw_ble_connected(canvas);
