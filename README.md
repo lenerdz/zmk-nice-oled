@@ -1,4 +1,7 @@
 # nice!oled - nice!epaper - nice!custom
+
+[English](./README.md) | [Português (Brasil)](./README.pt-BR.md)
+
 ![nice_oled_demo](./assets/nice_oled_demo.GIF)
 ![nice_epaper_demo](./assets/nice_epaper_demo.GIF)
 ![nice_epaper_demo](./assets/nice_custom_demo.GIF)
