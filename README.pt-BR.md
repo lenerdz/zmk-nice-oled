@@ -230,6 +230,30 @@ Este documento lista as opções de configuração disponíveis para o shield `n
 | `CONFIG_NICE_OLED_WIDGET_STATIC_IMAGE_PERIPHERAL_VIM` | bool | `n` | Habilita o vim estático no periférico |
 | `CONFIG_NICE_OLED_WIDGET_STATIC_IMAGE_PERIPHERAL_VIP_MARCOS` | bool | `n` | Habilita o vim_marcos estático no periférico |
 | `CONFIG_NICE_OLED_WIDGET_PERIPHERAL` | bool | `n` | Habilita o widget de teste no periférico |
+| `CONFIG_NICE_OLED_WIDGET_LED_TOAST` | bool | `n` | Mostra por um instante as mudanças nas luzes (efeito, brilho, cor) na tela do periférico; veja [Toast de RGB](#toast-de-rgb-periférico). Precisa do OLED e do módulo `zmk-behavior-rgb-matrix` de [lenerdz/zmk-rgb-matrix](https://github.com/lenerdz/zmk-rgb-matrix) (`CONFIG_KEYPAW_RGB_MATRIX_CHANGE_EVENT`) |
+| `CONFIG_NICE_OLED_WIDGET_LED_TOAST_MS` | int | `1500` | Por quanto tempo o toast fica na tela, em milissegundos (200 a 10000) |
+| `CONFIG_NICE_OLED_WIDGET_LED_TOAST_LANGUAGE_EN` / `CONFIG_NICE_OLED_WIDGET_LED_TOAST_LANGUAGE_PT_BR` | choice | `..._EN` | Idioma dos textos do toast |
+
+### Toast de RGB (periférico)
+
+Com `CONFIG_NICE_OLED_WIDGET_LED_TOAST=y`, a tela do periférico mostra, por `CONFIG_NICE_OLED_WIDGET_LED_TOAST_MS` depois que um comando de luz mudou algo, o que mudou. Ele usa duas linhas da fonte de 8 pixels na faixa abaixo da animação do gato (8 caracteres por linha, apenas ASCII). Uma mudança mais nova substitui a que está na tela e reinicia o temporizador.
+
+| O que mudou | Primeira linha | Segunda linha |
+|---|---|---|
+| Efeito | `EFFECT 4` (ou `FX 12` a partir do décimo) | o nome do efeito, p. ex. `RAINBOW` |
+| Ligar/desligar | `LIGHTS` | `ON` ou `OFF` |
+| Brilho | `BRIGHT` | `70%` |
+| Matiz | `HUE` | `210 deg` |
+| Saturação | `SATUR.` | `100%` |
+| Período da animação | `PERIOD` | `3000 ms` |
+| Reset | `LIGHTS` | `RESET` |
+
+Os textos estão em inglês por padrão; `CONFIG_NICE_OLED_WIDGET_LED_TOAST_LANGUAGE_PT_BR=y` seleciona o português (`EFEITO`, `LUZES`, `LIGADAS`, `APAGADAS`, `BRILHO`, `MATIZ`, `SATUR.`, `CICLO`).
+
+- O evento vem do módulo de RGB e é disparado nas **duas** metades, então uma tecla apertada em qualquer uma das metades mostra o toast na tela do periférico. Veja "Evento de mudança" no README do módulo.
+- Ele não aparece na inicialização, quando a central envia seu estado ao periférico na conexão, nem para as edições dos mapas de cor do ZMK Studio.
+- O toast existe apenas na tela do periférico: a opção depende de um build split que não seja a metade central.
+- A posição padrão (`CONFIG_NICE_OLED_WIDGET_LED_TOAST_CUSTOM_X`/`_Y`, veja [Posição do widget do toast de RGB](#posição-do-widget-do-toast-de-rgb)) foi calculada para o OLED de 128x32 com a animação padrão do gato, e não foi testada em outros displays ou animações. Ainda não testado em um teclado de verdade.
 
 ## Específico do central
 
@@ -415,6 +439,15 @@ Essas variáveis permitem que os usuários personalizem as posições dos widget
 |----------|------|-------------|---------------|-----------|
 | `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_CUSTOM_X` | int | `18` | `36` | Posição X da animação do periférico |
 | `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_CUSTOM_Y` | int | `-18` | `0` | Posição Y da animação do periférico |
+
+### Posição do widget do toast de RGB
+
+A posição da primeira linha do [Toast de RGB](#toast-de-rgb-periférico); a segunda linha fica 8 pixels abaixo. No OLED de 128x32 a parte visível do canvas de 68x160 é x de 0 a 31 e y de 32 a 159, e a faixa abaixo da animação padrão do gato é y de 142 a 159.
+
+| Variável | Tipo | Padrão | Descrição |
+|----------|------|--------|-----------|
+| `CONFIG_NICE_OLED_WIDGET_LED_TOAST_CUSTOM_X` | int | `0` | Posição X do toast de RGB |
+| `CONFIG_NICE_OLED_WIDGET_LED_TOAST_CUSTOM_Y` | int | `143` | Posição Y do toast de RGB |
 
 ### Posição do widget Raw HID
 

@@ -18,6 +18,14 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include "output.h"
 #include "screen_peripheral.h"
 
+#if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_LED_TOAST)
+#include <string.h>
+
+#include <zmk/events/rgb_matrix_changed.h>
+
+#include "led_toast.h"
+#endif
+
 static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
 
 /**
@@ -50,6 +58,9 @@ static void draw_canvas(lv_obj_t *widget, const struct status_state *state) {
     draw_background(canvas);
     draw_output_status(canvas, state);
     draw_battery_status(canvas, state);
+#if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_LED_TOAST)
+    draw_led_toast(canvas, state);
+#endif
 
     // Rotate for horizontal display
     rotate_canvas(canvas);
@@ -135,6 +146,73 @@ ZMK_DISPLAY_WIDGET_LISTENER(widget_peripheral_status, struct peripheral_status_s
 ZMK_SUBSCRIPTION(widget_peripheral_status, zmk_split_peripheral_status_changed);
 
 /**
+ * RGB toast
+ *
+ * For CONFIG_NICE_OLED_WIDGET_LED_TOAST_MS after a light command changed something, show what
+ * changed. The state of the display listener keeps only the latest event, which is what a toast
+ * wants: a newer change replaces the one on screen and restarts the timer.
+ **/
+
+#if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_LED_TOAST)
+
+struct led_toast_state {
+    // false for the listener's initial refresh, when nothing has been announced yet
+    bool valid;
+    char line1[LED_TOAST_LINE_LEN];
+    char line2[LED_TOAST_LINE_LEN];
+};
+
+static void led_toast_expire_cb(struct k_work *work);
+static K_WORK_DELAYABLE_DEFINE(led_toast_expire_work, led_toast_expire_cb);
+
+static void led_toast_show(struct zmk_widget_screen *widget, const struct led_toast_state *toast) {
+    widget->state.toast_active = true;
+    memcpy(widget->state.toast_line1, toast->line1, sizeof(widget->state.toast_line1));
+    memcpy(widget->state.toast_line2, toast->line2, sizeof(widget->state.toast_line2));
+
+    draw_canvas(widget->obj, &widget->state);
+}
+
+static void led_toast_update_cb(struct led_toast_state toast) {
+    if (!toast.valid) {
+        return;
+    }
+
+    struct zmk_widget_screen *widget;
+    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) { led_toast_show(widget, &toast); }
+
+    k_work_reschedule_for_queue(zmk_display_work_q(), &led_toast_expire_work,
+                                K_MSEC(CONFIG_NICE_OLED_WIDGET_LED_TOAST_MS));
+}
+
+static void led_toast_expire_cb(struct k_work *work) {
+    struct zmk_widget_screen *widget;
+    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
+        widget->state.toast_active = false;
+        draw_canvas(widget->obj, &widget->state);
+    }
+}
+
+static struct led_toast_state led_toast_get_state(const zmk_event_t *eh) {
+    struct led_toast_state toast = {0};
+
+    // The initial refresh passes no event, and the accessor does not accept NULL
+    const struct zmk_rgb_matrix_changed *ev = (eh != NULL) ? as_zmk_rgb_matrix_changed(eh) : NULL;
+    if (ev != NULL) {
+        toast.valid = true;
+        led_toast_format(ev, toast.line1, toast.line2);
+    }
+
+    return toast;
+}
+
+ZMK_DISPLAY_WIDGET_LISTENER(widget_led_toast, struct led_toast_state, led_toast_update_cb,
+                            led_toast_get_state)
+ZMK_SUBSCRIPTION(widget_led_toast, zmk_rgb_matrix_changed);
+
+#endif /* IS_ENABLED(CONFIG_NICE_OLED_WIDGET_LED_TOAST) */
+
+/**
  * Initialization
  **/
 
@@ -153,6 +231,9 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
 #endif
     widget_battery_status_init();
     widget_peripheral_status_init();
+#if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_LED_TOAST)
+    widget_led_toast_init();
+#endif
 
 #if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_WPM)
     zmk_widget_luna_init(&luna_widget, canvas);

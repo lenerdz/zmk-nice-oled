@@ -17,6 +17,10 @@
 #define LVGL_FOREGROUND                                                                            \
     IS_ENABLED(CONFIG_NICE_OLED_WIDGET_INVERTED) ? lv_color_white() : lv_color_black()
 
+// RGB toast (peripheral): each line has up to 8 characters, 4 pixels each on the 32 pixel wide
+// screen, plus the terminator
+#define LED_TOAST_LINE_LEN 9
+
 #if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_CENTRAL_SHOW_BATTERY_PERIPHERAL_ALL) ||                     \
     IS_ENABLED(CONFIG_NICE_OLED_WIDGET_CENTRAL_SHOW_BATTERY_PERIPHERAL_ONLY) ||                    \
     IS_ENABLED(CONFIG_NICE_OLED_WIDGET_CENTRAL_SHOW_BATTERY_PERIPHERAL_AND_CENTRAL)
@@ -64,6 +68,11 @@ struct status_state {
 
 #else
     bool connected;
+#if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_LED_TOAST)
+    bool toast_active;
+    char toast_line1[LED_TOAST_LINE_LEN];
+    char toast_line2[LED_TOAST_LINE_LEN];
+#endif
 #endif
 };
 

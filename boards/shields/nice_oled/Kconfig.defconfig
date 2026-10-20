@@ -175,6 +175,38 @@ endif # NICE_OLED_WIDGET_ANIMATION_PERIPHERAL || NICE_OLED_WIDGET_STATIC_IMAGE_P
 config NICE_OLED_WIDGET_PERIPHERAL
     bool "Enable test widget on peripheral"
     default n
+
+### NICE_OLED_WIDGET_LED_TOAST {{{
+# Needs the zmk-behavior-rgb-matrix module (it raises the event the toast listens to) and
+# the 128x32 OLED, whose geometry the default position was chosen for
+config NICE_OLED_WIDGET_LED_TOAST
+    bool "Show light changes (effect, brightness, colour) on the peripheral screen for a moment"
+    default n
+    depends on NICE_OLED_ON
+    depends on ZMK_SPLIT && !ZMK_SPLIT_ROLE_CENTRAL
+    depends on KEYPAW_RGB_MATRIX_CHANGE_EVENT
+
+if NICE_OLED_WIDGET_LED_TOAST
+
+config NICE_OLED_WIDGET_LED_TOAST_MS
+    int "How long the light toast stays on screen, in milliseconds"
+    default 1500
+    range 200 10000
+
+choice NICE_OLED_WIDGET_LED_TOAST_LANGUAGE
+    prompt "Language of the light toast"
+    default NICE_OLED_WIDGET_LED_TOAST_LANGUAGE_EN
+
+config NICE_OLED_WIDGET_LED_TOAST_LANGUAGE_EN
+    bool "English"
+
+config NICE_OLED_WIDGET_LED_TOAST_LANGUAGE_PT_BR
+    bool "Portuguese (Brazil)"
+
+endchoice
+
+endif # NICE_OLED_WIDGET_LED_TOAST
+##}}}
 ### ONLY FOR PERIPHERAL END }}}
 ### ANIMATION ON PERIPHERAL END }}}
 ### WIDGET ON CENTRAL START {{{
@@ -726,6 +758,18 @@ config NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_CUSTOM_Y
     default -18 if NICE_OLED_ON
     default 0 if NICE_EPAPER_ON
     default -18
+##}}}
+
+## LED TOAST POSITION {{{
+# The first line of the toast. The second is 8 pixels below. On the 128x32 OLED the visible part of
+# the 68x160 canvas is x 0..31, y 32..159, and the strip under the peripheral animation is y 142..159
+config NICE_OLED_WIDGET_LED_TOAST_CUSTOM_X
+    int "Light toast X position"
+    default 0
+
+config NICE_OLED_WIDGET_LED_TOAST_CUSTOM_Y
+    int "Light toast Y position"
+    default 143
 ##}}}
 
 ## RAW HID WIDGET POSITION {{{
