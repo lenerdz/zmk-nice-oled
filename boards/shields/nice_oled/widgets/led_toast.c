@@ -57,19 +57,16 @@ BUILD_ASSERT(sizeof(TXT_RESET) <= LED_TOAST_LINE_LEN, "TXT_RESET does not fit in
 /** 8 characters of 4 pixels. */
 #define LED_TOAST_LINE_WIDTH 32
 
-/** Writes `fmt` into a line, cutting what does not fit. */
+/** Writes `fmt` into a line; vsnprintf cuts what does not fit and always terminates the string. */
 static void put_linef(char dst[LED_TOAST_LINE_LEN], const char *fmt, ...)
     __attribute__((format(printf, 2, 3)));
 
 static void put_linef(char dst[LED_TOAST_LINE_LEN], const char *fmt, ...) {
-    char text[24];
     va_list args;
 
     va_start(args, fmt);
-    vsnprintf(text, sizeof(text), fmt, args);
+    vsnprintf(dst, LED_TOAST_LINE_LEN, fmt, args);
     va_end(args);
-
-    snprintf(dst, LED_TOAST_LINE_LEN, "%s", text);
 }
 
 static void put_uppercase(char dst[LED_TOAST_LINE_LEN], const char *src) {
