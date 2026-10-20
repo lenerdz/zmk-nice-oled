@@ -24,6 +24,10 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include <zmk/events/rgb_matrix_changed.h>
 
 #include "led_toast.h"
+
+#if IS_ENABLED(CONFIG_KEYPAW_DISPLAY_SETTINGS)
+#include <zmk/display_settings.h>
+#endif
 #endif
 
 static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
@@ -151,6 +155,10 @@ ZMK_SUBSCRIPTION(widget_peripheral_status, zmk_split_peripheral_status_changed);
  * For CONFIG_NICE_OLED_WIDGET_LED_TOAST_MS after a light command changed something, show what
  * changed. The state of the display listener keeps only the latest event, which is what a toast
  * wants: a newer change replaces the one on screen and restarts the timer.
+ *
+ * With CONFIG_KEYPAW_DISPLAY_SETTINGS (zmk-rgb-matrix), the toast can be turned off and its time
+ * changed from ZMK Studio; CONFIG_NICE_OLED_WIDGET_LED_TOAST_MS is then only the build without
+ * those settings.
  **/
 
 #if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_LED_TOAST)
@@ -178,11 +186,19 @@ static void led_toast_update_cb(struct led_toast_state toast) {
         return;
     }
 
+#if IS_ENABLED(CONFIG_KEYPAW_DISPLAY_SETTINGS)
+    if (kp_display_setting_get(KP_DISPLAY_TOAST) == 0) {
+        return;
+    }
+    const uint32_t toast_ms = (uint32_t)kp_display_setting_get(KP_DISPLAY_TOAST_MS);
+#else
+    const uint32_t toast_ms = CONFIG_NICE_OLED_WIDGET_LED_TOAST_MS;
+#endif
+
     struct zmk_widget_screen *widget;
     SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) { led_toast_show(widget, &toast); }
 
-    k_work_reschedule_for_queue(zmk_display_work_q(), &led_toast_expire_work,
-                                K_MSEC(CONFIG_NICE_OLED_WIDGET_LED_TOAST_MS));
+    k_work_reschedule_for_queue(zmk_display_work_q(), &led_toast_expire_work, K_MSEC(toast_ms));
 }
 
 static void led_toast_expire_cb(struct k_work *work) {

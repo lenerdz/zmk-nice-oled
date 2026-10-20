@@ -231,7 +231,7 @@ Este documento lista as opções de configuração disponíveis para o shield `n
 | `CONFIG_NICE_OLED_WIDGET_STATIC_IMAGE_PERIPHERAL_VIP_MARCOS` | bool | `n` | Habilita o vim_marcos estático no periférico |
 | `CONFIG_NICE_OLED_WIDGET_PERIPHERAL` | bool | `n` | Habilita o widget de teste no periférico |
 | `CONFIG_NICE_OLED_WIDGET_LED_TOAST` | bool | `n` | Mostra por um instante as mudanças nas luzes (efeito, brilho, cor) na tela do periférico; veja [Toast de RGB](#toast-de-rgb-periférico). Precisa do OLED e do módulo `zmk-behavior-rgb-matrix` de [lenerdz/zmk-rgb-matrix](https://github.com/lenerdz/zmk-rgb-matrix) (`CONFIG_KEYPAW_RGB_MATRIX_CHANGE_EVENT`) |
-| `CONFIG_NICE_OLED_WIDGET_LED_TOAST_MS` | int | `1500` | Por quanto tempo o toast fica na tela, em milissegundos (200 a 10000) |
+| `CONFIG_NICE_OLED_WIDGET_LED_TOAST_MS` | int | `1500` | Por quanto tempo o toast fica na tela, em milissegundos (200 a 10000). Não é usada quando as configurações de tela do módulo estão ligadas (`CONFIG_KEYPAW_DISPLAY_SETTINGS`): então quem define o tempo é o ZMK Studio |
 | `CONFIG_NICE_OLED_WIDGET_LED_TOAST_LANGUAGE_EN` / `CONFIG_NICE_OLED_WIDGET_LED_TOAST_LANGUAGE_PT_BR` | choice | `..._EN` | Idioma dos textos do toast |
 
 ### Toast de RGB (periférico)
@@ -252,6 +252,7 @@ Os textos estão em inglês por padrão; `CONFIG_NICE_OLED_WIDGET_LED_TOAST_LANG
 
 - O evento vem do módulo de RGB e é disparado nas **duas** metades, então uma tecla apertada em qualquer uma das metades mostra o toast na tela do periférico. Veja "Evento de mudança" no README do módulo.
 - Ele não aparece na inicialização, quando a central envia seu estado ao periférico na conexão, nem para as edições dos mapas de cor do ZMK Studio.
+- Com `CONFIG_KEYPAW_DISPLAY_SETTINGS=y` no módulo (as configurações de tela, veja "Configurações da tela (OLED)" no README do módulo), o toast pode ser desligado e o seu tempo mudado no ZMK Studio (as configurações "Toast" e "Duração do toast"). `CONFIG_NICE_OLED_WIDGET_LED_TOAST_MS` deixa então de ser usada: o tempo inicial é `CONFIG_KEYPAW_DISPLAY_TOAST_MS_DEFAULT` do módulo. Ainda não testado em um teclado de verdade.
 - O toast existe apenas na tela do periférico: a opção depende de um build split que não seja a metade central.
 - A posição padrão (`CONFIG_NICE_OLED_WIDGET_LED_TOAST_CUSTOM_X`/`_Y`, veja [Posição do widget do toast de RGB](#posição-do-widget-do-toast-de-rgb)) foi calculada para o OLED de 128x32 com a animação padrão do gato, e não foi testada em outros displays ou animações. Ainda não testado em um teclado de verdade.
 

@@ -228,7 +228,7 @@ This document lists the available configuration options for the `nice_oled` shie
 | `CONFIG_NICE_OLED_WIDGET_STATIC_IMAGE_PERIPHERAL_VIP_MARCOS` | bool | `n` | Enable static vim_marcos on peripheral |
 | `CONFIG_NICE_OLED_WIDGET_PERIPHERAL` | bool | `n` | Enable test widget on peripheral |
 | `CONFIG_NICE_OLED_WIDGET_LED_TOAST` | bool | `n` | Show light changes (effect, brightness, colour) on the peripheral screen for a moment; see [RGB Toast](#rgb-toast-peripheral). Needs the OLED and the `zmk-behavior-rgb-matrix` module of [lenerdz/zmk-rgb-matrix](https://github.com/lenerdz/zmk-rgb-matrix) (`CONFIG_KEYPAW_RGB_MATRIX_CHANGE_EVENT`) |
-| `CONFIG_NICE_OLED_WIDGET_LED_TOAST_MS` | int | `1500` | How long the toast stays on screen, in milliseconds (200 to 10000) |
+| `CONFIG_NICE_OLED_WIDGET_LED_TOAST_MS` | int | `1500` | How long the toast stays on screen, in milliseconds (200 to 10000). Not used when the display settings of the module are on (`CONFIG_KEYPAW_DISPLAY_SETTINGS`): ZMK Studio sets the time then |
 | `CONFIG_NICE_OLED_WIDGET_LED_TOAST_LANGUAGE_EN` / `CONFIG_NICE_OLED_WIDGET_LED_TOAST_LANGUAGE_PT_BR` | choice | `..._EN` | Language of the toast texts |
 
 ### RGB Toast (Peripheral)
@@ -249,6 +249,7 @@ The texts are in English by default; `CONFIG_NICE_OLED_WIDGET_LED_TOAST_LANGUAGE
 
 - The event comes from the RGB module and is raised on **both** halves, so a key pressed on either half shows the toast on the peripheral screen. See "Change event" in the README of the module.
 - It is not shown at boot, when the central pushes its state to the peripheral on connect, or for colour-map edits of ZMK Studio.
+- With `CONFIG_KEYPAW_DISPLAY_SETTINGS=y` in the module (the display settings, see "Display (OLED) settings" in the README of the module), the toast can be turned off and its time changed from ZMK Studio (the settings "Toast" and "Toast duration"). `CONFIG_NICE_OLED_WIDGET_LED_TOAST_MS` is then not used: the starting time is `CONFIG_KEYPAW_DISPLAY_TOAST_MS_DEFAULT` of the module. Not tested on a real keyboard yet.
 - The toast exists only on the peripheral screen: the option depends on a split build that is not the central half.
 - The default position (`CONFIG_NICE_OLED_WIDGET_LED_TOAST_CUSTOM_X`/`_Y`, see [RGB Toast Widget Position](#rgb-toast-widget-position)) was calculated for the 128x32 OLED with the default cat animation, and is not tested on other displays or animations. Not tested on a real keyboard yet.
 
