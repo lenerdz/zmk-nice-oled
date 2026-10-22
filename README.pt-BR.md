@@ -68,6 +68,7 @@ O aplicativo host complementar, `zmk-hid-host`, fornece a ponte de dados necess�
 - **Shield `nice_custom`**: Posicione drivers via configuração, sem necessidade de código.
 - **Redução da tensão no pescoço**: Veja as informações no teclado em vez de no monitor.
 - **Compatível com modo escuro**: Otimizado para o nice!oled.
+- **Layout em tempo de execução (opcional)**: com o módulo [lenerdz/zmk-rgb-matrix](https://github.com/lenerdz/zmk-rgb-matrix), o ZMK Studio escolhe quais widgets são desenhados, onde, e qual animação o periférico toca; veja [Layout das telas OLED em tempo de execução](#layout-das-telas-oled-em-tempo-de-execução-central-e-periférico).
 
 ### Tela central
 - **Widgets de WPM**: Gráficos, velocímetro, Luna, Bongo Cat.
@@ -256,6 +257,37 @@ Os textos estão em inglês por padrão; `CONFIG_NICE_OLED_WIDGET_LED_TOAST_LANG
 - O toast existe apenas na tela do periférico: a opção depende de um build split que não seja a metade central.
 - A posição padrão (`CONFIG_NICE_OLED_WIDGET_LED_TOAST_CUSTOM_X`/`_Y`, veja [Posição do widget do toast de RGB](#posição-do-widget-do-toast-de-rgb)) foi calculada para o OLED de 128x32 com a animação padrão do gato, e não foi testada em outros displays ou animações. Ainda não testado em um teclado de verdade.
 
+## Layout das telas OLED em tempo de execução (central e periférico)
+
+Com `CONFIG_KEYPAW_OLED_LAYOUT=y` (uma opção do módulo [lenerdz/zmk-rgb-matrix](https://github.com/lenerdz/zmk-rgb-matrix); veja "Layout das telas OLED" no README dele) os widgets deixam de tirar só do build o lugar onde ficam e se aparecem. Toda vez que desenham, eles leem do módulo se são mostrados e onde e, no periférico, qual animação ou imagem aparece e quanto tempo dura um ciclo. O [ZMK Studio](https://zmk.dev/docs/features/studio) edita esses valores (a aba OLED do app [lenerdz/zmk-studio](https://github.com/lenerdz/zmk-studio)), cada metade os guarda na sua própria flash, e a tela desenha de novo assim que um deles muda (o módulo dispara o evento `zmk_display_settings_changed`).
+
+As opções `CONFIG_NICE_OLED_WIDGET_*_CUSTOM_X` e `_Y` e as opções `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_*` continuam existindo, como os **padrões**: até que algo seja mudado, as telas ficam como estavam sem a opção. Sem a opção nada é lido em tempo de execução e os widgets são desenhados como antes.
+
+Ela precisa do OLED (o shield `nice_oled` com o widget de status) e de `CONFIG_KEYPAW_DISPLAY_SETTINGS=y` no módulo (que por sua vez precisa de `CONFIG_ZMK_DISPLAY_BLANK_ON_IDLE=n`), e precisa estar ligada no build das duas metades: o central guarda as configurações das duas telas e envia as da direita ao periférico. Defina as opções da tela direita (a animação, a bateria, o ícone de Bluetooth e a posição do toast) na configuração das **duas** metades, para que os padrões que o central lista sejam os que o periférico desenha. As telas e-paper não são suportadas.
+
+| Tela | Widget | Padrão | O que se move junto |
+|---|---|---|---|
+| direita | animação ou imagem | `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_CUSTOM_X` e `_Y`; o tipo vem de `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_*` e o tempo do ciclo de `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_MS` | o tipo e o tempo do ciclo também são configurações |
+| direita | bateria | `CONFIG_NICE_OLED_WIDGET_BATTERY_CUSTOM_X` e `_Y` | o raio de carregamento |
+| direita | ícone de Bluetooth | `CONFIG_NICE_OLED_WIDGET_OUTPUT_BT_CUSTOM_X` e `_Y` | os ícones de sem sinal e de não pareado mantêm a distância dele |
+| direita | toast de RGB | `CONFIG_NICE_OLED_WIDGET_LED_TOAST_CUSTOM_X` e `_Y` | a segunda linha, 8 pixels abaixo; só o lugar é uma configuração do layout, porque ligar e desligar o toast e o tempo dele são as configurações "Toast" e "Duração do toast" |
+| esquerda | ícone de saída | `CONFIG_NICE_OLED_WIDGET_OUTPUT_USB_CUSTOM_X` e `_Y` | os ícones de Bluetooth e o fundo da saída mantêm a distância dele |
+| esquerda | bateria | `CONFIG_NICE_OLED_WIDGET_BATTERY_CUSTOM_X` e `_Y`; x 0 e y 19 quando o build mostra as baterias das duas metades como texto | o raio de carregamento |
+| esquerda | pontos dos perfis | `CONFIG_NICE_OLED_WIDGET_PROFILE_CUSTOM_X` e `_Y` (x 0 e y 129 com `CONFIG_NICE_OLED_WIDGET_PROFILE_BIG`) | as cinco marcas e a ativa |
+| esquerda | número do perfil | `CONFIG_NICE_OLED_WIDGET_PROFILE_TEXT_CUSTOM_X` e `_Y` | |
+| esquerda | nome da camada | `CONFIG_NICE_OLED_WIDGET_LAYER_CUSTOM_X` e `_Y` | |
+| esquerda | velocímetro de WPM | `CONFIG_NICE_OLED_WIDGET_WPM_GAUGE_CUSTOM_X` e `_Y` | o ponteiro |
+| esquerda | número de WPM | `CONFIG_NICE_OLED_WIDGET_WPM_LABEL_CUSTOM_X` e `_Y` | |
+| esquerda | gráfico de WPM | x -1 e y 95, a grade embaixo dele (ela não tem opção) | os pontos do gráfico |
+
+**Animações.** Com a opção ligada, todas as animações e imagens do periférico são compiladas (crystal, cat, head, spaceman, pokemon, vim e vip_marcos), seja qual for o que `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_*` diz, então o ZMK Studio pode alternar entre elas com o teclado funcionando; as opções só escolhem a que aparece no início. Um ciclo leva o tempo que pertence a cada animação (960 ms para crystal e cat, 4800 ms para head e spaceman, 10000 ms para pokemon), exceto a que o build escolheu, que mantém `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_MS`; o ZMK Studio pode definir outro tempo, de 100 a 60000 ms. Com `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_SMART_BATTERY` a animação não faz parte do layout.
+
+**Custo.** Medido com o Corne do [lenerdz/corne-zmk](https://github.com/lenerdz/corne-zmk): a metade direita cresce 68.520 bytes de flash (todas as animações são compiladas) e 560 bytes de RAM, e a metade esquerda 1.432 bytes de flash e 224 bytes de RAM.
+
+**Fora do escopo.** O bongo cat, o cachorro luna, o bongo cat responsivo, os indicadores de HID e de modificadores, os widgets de Raw HID, a arte de repouso e a animação de bateria inteligente não fazem parte do layout: eles são desenhados onde o build diz.
+
+**Situação.** Compila para as duas metades no CI do [lenerdz/corne-zmk](https://github.com/lenerdz/corne-zmk). Ainda não foi experimentado em um teclado real: os widgets se movendo e sumindo, a animação alternando com o teclado funcionando, o tempo do ciclo e o redesenho do periférico quando uma configuração chega a ele.
+
 ## Específico do central
 
 | Variável | Tipo | Padrão | Descrição |
@@ -359,7 +391,7 @@ Ao usar o estilo `SYMBOL`, os seguintes ícones reais são exibidos:
 
 ## Coordenadas de posição dos widgets
 
-Essas variáveis permitem que os usuários personalizem as posições dos widgets. Cada widget tem coordenadas X e Y que podem ser definidas no seu arquivo `.conf`. Os padrões são definidos por shield (OLED vs ePaper).
+Essas variáveis permitem que os usuários personalizem as posições dos widgets. Cada widget tem coordenadas X e Y que podem ser definidas no seu arquivo `.conf`. Os padrões são definidos por shield (OLED vs ePaper). Com `CONFIG_KEYPAW_OLED_LAYOUT=y` esses valores são apenas os padrões: veja [Layout das telas OLED em tempo de execução](#layout-das-telas-oled-em-tempo-de-execução-central-e-periférico).
 
 ### Posição do widget de camada
 

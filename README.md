@@ -65,6 +65,7 @@ The companion host application, `zmk-hid-host`, provides the necessary data brid
 - **`nice_custom` Shield**: Position drivers via config, no code required.
 - **Neck Strain Reduction**: View info on keyboard instead of monitor.
 - **Dark Mode Friendly**: Optimized for nice!oled.
+- **Layout at Run Time (optional)**: with the [lenerdz/zmk-rgb-matrix](https://github.com/lenerdz/zmk-rgb-matrix) module, ZMK Studio chooses which widgets are drawn, where, and which animation the peripheral plays; see [OLED Layout at Run Time](#oled-layout-at-run-time-central--peripheral).
 
 ### Central Screen
 - **WPM Widgets**: Graphs, Speedometer, Luna, Bongo Cat.
@@ -253,6 +254,37 @@ The texts are in English by default; `CONFIG_NICE_OLED_WIDGET_LED_TOAST_LANGUAGE
 - The toast exists only on the peripheral screen: the option depends on a split build that is not the central half.
 - The default position (`CONFIG_NICE_OLED_WIDGET_LED_TOAST_CUSTOM_X`/`_Y`, see [RGB Toast Widget Position](#rgb-toast-widget-position)) was calculated for the 128x32 OLED with the default cat animation, and is not tested on other displays or animations. Not tested on a real keyboard yet.
 
+## OLED Layout at Run Time (Central & Peripheral)
+
+With `CONFIG_KEYPAW_OLED_LAYOUT=y` (an option of the [lenerdz/zmk-rgb-matrix](https://github.com/lenerdz/zmk-rgb-matrix) module; see "OLED layout" in its README) the widgets no longer take their place and their presence only from the build. Every time they draw, they read from the module whether they are shown and where and, on the peripheral, which animation or image is shown and how long one cycle takes. [ZMK Studio](https://zmk.dev/docs/features/studio) edits those values (the OLED tab of the [lenerdz/zmk-studio](https://github.com/lenerdz/zmk-studio) app), each half keeps them in its own flash, and the screen draws again as soon as one changes (the module raises the event `zmk_display_settings_changed`).
+
+The `CONFIG_NICE_OLED_WIDGET_*_CUSTOM_X` and `_Y` options and the `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_*` options stay, as the **defaults**: until something is changed, the screens look as they did without the option. Without the option nothing is read at run time and the widgets are drawn as before.
+
+It needs the OLED (the `nice_oled` shield with the status widget) and `CONFIG_KEYPAW_DISPLAY_SETTINGS=y` in the module (which in turn needs `CONFIG_ZMK_DISPLAY_BLANK_ON_IDLE=n`), and it has to be on in the build of both halves: the central keeps the settings of both screens and sends those of the right one to the peripheral. Set the options of the right screen (the animation, the battery, the Bluetooth icon and the toast position) in the configuration of **both** halves, so that the defaults the central lists are the ones the peripheral draws. The e-paper screens are not supported.
+
+| Screen | Widget | Default | What moves with it |
+|---|---|---|---|
+| right | animation or image | `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_CUSTOM_X` and `_Y`; the kind from `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_*` and the cycle time from `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_MS` | the kind and the cycle time are settings too |
+| right | battery | `CONFIG_NICE_OLED_WIDGET_BATTERY_CUSTOM_X` and `_Y` | the charging bolt |
+| right | Bluetooth icon | `CONFIG_NICE_OLED_WIDGET_OUTPUT_BT_CUSTOM_X` and `_Y` | the no signal and not bonded icons keep their distance from it |
+| right | RGB toast | `CONFIG_NICE_OLED_WIDGET_LED_TOAST_CUSTOM_X` and `_Y` | the second line, 8 pixels below; only the place is a layout setting, because turning the toast on and off and its time are the settings "Toast" and "Toast duration" |
+| left | output icon | `CONFIG_NICE_OLED_WIDGET_OUTPUT_USB_CUSTOM_X` and `_Y` | the Bluetooth icons and the output background keep their distance from it |
+| left | battery | `CONFIG_NICE_OLED_WIDGET_BATTERY_CUSTOM_X` and `_Y`; x 0 and y 19 when the build shows the batteries of both halves as text | the charging bolt |
+| left | profile dots | `CONFIG_NICE_OLED_WIDGET_PROFILE_CUSTOM_X` and `_Y` (x 0 and y 129 with `CONFIG_NICE_OLED_WIDGET_PROFILE_BIG`) | the five marks, and the active one |
+| left | profile number | `CONFIG_NICE_OLED_WIDGET_PROFILE_TEXT_CUSTOM_X` and `_Y` | |
+| left | layer name | `CONFIG_NICE_OLED_WIDGET_LAYER_CUSTOM_X` and `_Y` | |
+| left | WPM gauge | `CONFIG_NICE_OLED_WIDGET_WPM_GAUGE_CUSTOM_X` and `_Y` | the needle |
+| left | WPM number | `CONFIG_NICE_OLED_WIDGET_WPM_LABEL_CUSTOM_X` and `_Y` | |
+| left | WPM graph | x -1 and y 95, the grid under it (it has no option) | the points of the graph |
+
+**Animations.** With the option on, every animation and image of the peripheral is built in (crystal, cat, head, spaceman, pokemon, vim and vip_marcos), whatever `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_*` says, so ZMK Studio can switch between them while the keyboard runs; the options only choose the one shown at first. A cycle takes the time that belongs to each animation (960 ms for crystal and cat, 4800 ms for head and spaceman, 10000 ms for pokemon), except for the one the build chose, which keeps `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_MS`; ZMK Studio can set another time, from 100 to 60000 ms. With `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_SMART_BATTERY` the animation is not part of the layout.
+
+**Cost.** Measured with the Corne of [lenerdz/corne-zmk](https://github.com/lenerdz/corne-zmk): the right half grows 68,520 bytes of flash (every animation is built in) and 560 bytes of RAM, and the left half 1,432 bytes of flash and 224 bytes of RAM.
+
+**Not covered.** The bongo cat, the luna dog, the responsive bongo cat, the HID and modifier indicators, the Raw HID widgets, the sleep art and the smart battery animation are not part of the layout: they are drawn where the build says.
+
+**Status.** It compiles for both halves in the CI of [lenerdz/corne-zmk](https://github.com/lenerdz/corne-zmk). It has not been tried on a real keyboard yet: the widgets moving and hiding, the animation switching while the keyboard runs, the cycle time, and the redraw of the peripheral when a setting reaches it.
+
 ## Central Specific
 
 | Variable | Type | Default | Description |
@@ -356,7 +388,7 @@ When using `SYMBOL` style, the following real icons are displayed:
 
 ## Widget Position Coordinates
 
-These variables allow users to customize widget positions. Each widget has X and Y coordinates that can be set in your `.conf` file. The defaults are set per shield (OLED vs ePaper).
+These variables allow users to customize widget positions. Each widget has X and Y coordinates that can be set in your `.conf` file. The defaults are set per shield (OLED vs ePaper). With `CONFIG_KEYPAW_OLED_LAYOUT=y` these values are only the defaults: see [OLED Layout at Run Time](#oled-layout-at-run-time-central--peripheral).
 
 ### Layer Widget Position
 
