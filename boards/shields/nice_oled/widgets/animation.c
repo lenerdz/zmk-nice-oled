@@ -5,6 +5,13 @@
 
 #include "layout.h"
 
+#if IS_ENABLED(CONFIG_KEYPAW_OLED_LAYOUT)
+#include <zmk/display.h>
+
+#include "picture.h"
+#include "pictures.h"
+#endif
+
 LV_IMG_DECLARE(crystal_01);
 LV_IMG_DECLARE(crystal_02);
 LV_IMG_DECLARE(crystal_03);
@@ -316,7 +323,7 @@ LV_IMG_DECLARE(vim);
 
 // One entry per value of KP_OLED_R_ANIM_KIND (enum kp_oled_anim_kind of zmk-rgb-matrix)
 struct anim_def {
-    const lv_img_dsc_t **frames;
+    const lv_img_dsc_t *const *frames;
     // 1 is a still image
     uint8_t count;
     // One cycle, as the animation is made for (the build's own animation takes
@@ -324,8 +331,13 @@ struct anim_def {
     uint16_t ms;
 };
 
-static const lv_img_dsc_t *vim_imgs[] = {&vim};
-static const lv_img_dsc_t *vip_marcos_imgs[] = {&vip_marcos};
+static const lv_img_dsc_t *const vim_imgs[] = {&vim};
+static const lv_img_dsc_t *const vip_marcos_imgs[] = {&vip_marcos};
+
+// The pictures made by scripts/pictures/make_pictures.py (widgets/pictures.h): the kinds
+// after the ones of zmk-nice-oled
+#define PICTURE_ENTRY(KIND, prefix, ms) \
+    [KP_OLED_ANIM_##KIND] = {prefix##_imgs, ARRAY_SIZE(prefix##_imgs), ms},
 
 static const struct anim_def anims[KP_OLED_ANIM_KIND_COUNT] = {
     [KP_OLED_ANIM_CRYSTAL] = {crystal_imgs, ARRAY_SIZE(crystal_imgs), 960},
@@ -335,12 +347,16 @@ static const struct anim_def anims[KP_OLED_ANIM_KIND_COUNT] = {
     [KP_OLED_ANIM_POKEMON] = {pokemon_imgs, ARRAY_SIZE(pokemon_imgs), 10000},
     [KP_OLED_ANIM_VIM] = {vim_imgs, ARRAY_SIZE(vim_imgs), 0},
     [KP_OLED_ANIM_VIP_MARCOS] = {vip_marcos_imgs, ARRAY_SIZE(vip_marcos_imgs), 0},
+    PICTURES(PICTURE_ENTRY)
 };
 
-static lv_obj_t *art;
-// What art shows now: the kind (-1 before the first time, and while it is hidden) and its cycle
+// What the picture shows now: the kind (-1 before the first time, and while it is hidden), its
+// cycle and the frame of it that is on the canvas. The picture is not an object of LVGL: the frame
+// is put on the canvas, pixel by pixel, after the widgets were drawn and the canvas was turned
+// (animation_composite), so that a widget can be over it and the picture can be turned and cropped.
 static int applied_kind = -1;
 static uint32_t applied_ms;
+static uint16_t frame;
 
 // The cycle the setting asks for: 0 is the time of the animation, and a time that is asked for
 // is not shorter than 100 ms
@@ -359,23 +375,54 @@ static uint32_t cycle_ms(int kind, int32_t asked) {
     return anims[kind].ms;
 }
 
-void animation_apply(void) {
-    if (art == NULL) {
+// The time of one frame: the cycle shared by the frames, and not under 20 ms
+static uint32_t frame_ms(const struct anim_def *def, uint32_t cycle) {
+    return MAX(cycle / def->count, 20U);
+}
+
+static void step_cb(struct k_work *work);
+static K_WORK_DELAYABLE_DEFINE(step_work, step_cb);
+
+// When the next frame is due (k_uptime_get()), so that the time a frame takes to draw does not
+// make the cycle longer
+static int64_t next_frame_at;
+
+static void schedule_next(const struct anim_def *def) {
+    const int64_t now = k_uptime_get();
+
+    next_frame_at += frame_ms(def, applied_ms);
+    if (next_frame_at < now) {
+        // Late (the keyboard was busy): no burst of frames to make up for it
+        next_frame_at = now;
+    }
+
+    k_work_reschedule_for_queue(zmk_display_work_q(), &step_work,
+                                K_MSEC((int32_t)(next_frame_at - now)));
+}
+
+// The next frame. It runs on the display work queue, where LVGL runs, like the toast does.
+static void step_cb(struct k_work *work) {
+    if (applied_kind < 0) {
         return;
     }
 
+    const struct anim_def *def = &anims[applied_kind];
+    if (def->count < 2) {
+        return;
+    }
+
+    frame = (frame + 1) % def->count;
+    screen_peripheral_redraw();
+    schedule_next(def);
+}
+
+void animation_apply(void) {
     if (!LAYOUT_SHOWN(R_ANIM)) {
-        // Nothing to see: stop it, so that it does not keep LVGL busy for nobody
-        lv_anim_delete(art, NULL);
-        lv_obj_add_flag(art, LV_OBJ_FLAG_HIDDEN);
+        // Nothing to see: stop, so that nothing wakes up for nobody
+        k_work_cancel_delayable(&step_work);
         applied_kind = -1;
         return;
     }
-
-    lv_obj_remove_flag(art, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_align(art, LV_ALIGN_TOP_LEFT,
-                 LAYOUT_X(R_ANIM, CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_CUSTOM_X),
-                 LAYOUT_Y(R_ANIM, CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_CUSTOM_Y));
 
     int kind = (int)kp_display_setting_get(KP_OLED_R_ANIM_KIND);
     if (kind < 0 || kind >= KP_OLED_ANIM_KIND_COUNT) {
@@ -390,26 +437,62 @@ void animation_apply(void) {
         return;
     }
 
-    // Stop what runs before the source changes: it steps through the old list of frames
-    lv_anim_delete(art, NULL);
-
-    if (def->count > 1) {
-        lv_animimg_set_src(art, (const void **)def->frames, def->count);
-        lv_animimg_set_duration(art, ms);
-        lv_animimg_set_repeat_count(art, LV_ANIM_REPEAT_INFINITE);
-        lv_animimg_start(art);
-    } else {
-        lv_image_set_src(art, def->frames[0]);
+    if (kind != applied_kind) {
+        frame = 0;
     }
-
     applied_kind = kind;
     applied_ms = ms;
+
+    if (def->count > 1) {
+        next_frame_at = k_uptime_get();
+        schedule_next(def);
+    } else {
+        k_work_cancel_delayable(&step_work);
+    }
 }
 
-void draw_animation(lv_obj_t *canvas, struct zmk_widget_screen *widget) {
-    art = lv_animimg_create(canvas);
-    animation_apply();
+void animation_composite(lv_obj_t *canvas) {
+    if (applied_kind < 0 || !LAYOUT_SHOWN(R_ANIM)) {
+        return;
+    }
+
+    const struct anim_def *def = &anims[applied_kind];
+    const lv_img_dsc_t *img = def->frames[frame % def->count];
+
+    // The data of a 1 bit image of LVGL: a palette of two colors of 4 bytes, then the rows. A bit
+    // that is set is the ink, in the color the build draws with (the palette is the one that is
+    // swapped by CONFIG_NICE_OLED_WIDGET_INVERTED).
+    const struct picture_src src = {
+        .bits = img->data + 8,
+        .w = img->header.w,
+        .h = img->header.h,
+        .stride = (img->header.w + 7) / 8,
+    };
+
+    const int32_t crop_xy = kp_display_setting_get(KP_OLED_R_ANIM_CROP_XY);
+    const int32_t crop_wh = kp_display_setting_get(KP_OLED_R_ANIM_CROP_WH);
+    const struct picture_view view = {
+        .rot = (uint8_t)(kp_display_setting_get(KP_OLED_R_ANIM_ROT) & 3),
+        .crop_x = crop_xy & 0xff,
+        .crop_y = (crop_xy >> 8) & 0xff,
+        .crop_w = crop_wh & 0xff,
+        .crop_h = (crop_wh >> 8) & 0xff,
+        .mix = (uint8_t)kp_display_setting_get(KP_OLED_R_ANIM_MIX),
+    };
+
+    // The canvas has been turned: it is CANVAS_HEIGHT pixels wide and CANVAS_WIDTH tall now
+    uint8_t *buf = lv_canvas_get_draw_buf(canvas)->data;
+    const uint32_t stride = lv_draw_buf_width_to_stride(CANVAS_HEIGHT, CANVAS_COLOR_FORMAT);
+
+    picture_blit(buf, CANVAS_HEIGHT, CANVAS_WIDTH, stride,
+                 LAYOUT_X(R_ANIM, CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_CUSTOM_X),
+                 LAYOUT_Y(R_ANIM, CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_CUSTOM_Y), &src,
+                 &view, lv_color_luminance(LVGL_FOREGROUND), lv_color_luminance(LVGL_BACKGROUND));
+
+    lv_obj_invalidate(canvas);
 }
+
+void draw_animation(lv_obj_t *canvas, struct zmk_widget_screen *widget) { animation_apply(); }
 
 #else // IS_ENABLED(CONFIG_KEYPAW_OLED_LAYOUT)
 

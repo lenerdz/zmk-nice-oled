@@ -72,6 +72,12 @@ static void draw_canvas(lv_obj_t *widget, const struct status_state *state) {
 
     // Rotate for horizontal display
     rotate_canvas(canvas);
+
+#if IS_ENABLED(CONFIG_KEYPAW_OLED_LAYOUT) &&                                                       \
+    !IS_ENABLED(CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_SMART_BATTERY)
+    // The picture goes on the turned canvas: a lit pixel of it adds to the widgets or flips them
+    animation_composite(canvas);
+#endif
 }
 
 /**
@@ -236,8 +242,10 @@ ZMK_SUBSCRIPTION(widget_led_toast, zmk_rgb_matrix_changed);
  * OLED layout
  *
  * With CONFIG_KEYPAW_OLED_LAYOUT (zmk-rgb-matrix), which widgets are drawn and where, and which
- * animation (or image) plays and how fast, are settings that ZMK Studio edits. Every draw function
- * reads them; the animation is an object of its own, which animation_apply() puts in line.
+ * animation (or image) plays, how fast, turned how and cropped how, are settings that ZMK Studio
+ * edits. Every draw function reads them; the animation is not an object of LVGL but a frame that
+ * draw_canvas() puts on the canvas last (animation_composite), and animation_apply() puts its timer
+ * in line.
  **/
 
 #if IS_ENABLED(CONFIG_KEYPAW_OLED_LAYOUT)
@@ -245,15 +253,19 @@ struct oled_layout_state {
     uint8_t unused;
 };
 
+void screen_peripheral_redraw(void) {
+    struct zmk_widget_screen *widget;
+    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
+        draw_canvas(widget->obj, &widget->state);
+    }
+}
+
 static void oled_layout_update_cb(struct oled_layout_state state) {
 #if !IS_ENABLED(CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_SMART_BATTERY)
     animation_apply();
 #endif
 
-    struct zmk_widget_screen *widget;
-    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
-        draw_canvas(widget->obj, &widget->state);
-    }
+    screen_peripheral_redraw();
 }
 
 static struct oled_layout_state oled_layout_get_state(const zmk_event_t *eh) {
