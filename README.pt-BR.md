@@ -68,7 +68,7 @@ O aplicativo host complementar, `zmk-hid-host`, fornece a ponte de dados necess�
 - **Shield `nice_custom`**: Posicione drivers via configuração, sem necessidade de código.
 - **Redução da tensão no pescoço**: Veja as informações no teclado em vez de no monitor.
 - **Compatível com modo escuro**: Otimizado para o nice!oled.
-- **Layout em tempo de execução (opcional)**: com o módulo [lenerdz/zmk-rgb-matrix](https://github.com/lenerdz/zmk-rgb-matrix), o ZMK Studio escolhe quais widgets são desenhados, onde, e qual animação o periférico toca; veja [Layout das telas OLED em tempo de execução](#layout-das-telas-oled-em-tempo-de-execução-central-e-periférico).
+- **Layout em tempo de execução (opcional)**: com o módulo [lenerdz/zmk-rgb-matrix](https://github.com/lenerdz/zmk-rgb-matrix), o ZMK Studio escolhe quais widgets são desenhados, onde, qual animação o periférico toca, e como essa imagem é girada, recortada em um pedaço e misturada com os widgets que ficam sobre ela; veja [Layout das telas OLED em tempo de execução](#layout-das-telas-oled-em-tempo-de-execução-central-e-periférico).
 
 ### Tela central
 - **Widgets de WPM**: Gráficos, velocímetro, Luna, Bongo Cat.
@@ -84,6 +84,7 @@ O aplicativo host complementar, `zmk-hid-host`, fornece a ponte de dados necess�
 - **Bateria inteligente**: Animação eficiente do status da bateria.
 - **Sleep Art**: Imagens personalizadas durante o idle/sleep (ocioso/repouso).
 - **Imagens estáticas**: Vim, logotipos personalizados (modo de baixo consumo).
+- **Mais imagens (opcional, com o layout em tempo de execução)**: 11 animações a mais e 8 imagens estáticas a mais, desenhadas por `scripts/pictures/`, que o ZMK Studio pode escolher, girar, recortar em um pedaço e misturar com os widgets; veja [Novas imagens da tela direita](#novas-imagens-da-tela-direita).
 
 # Galeria
 
@@ -280,13 +281,66 @@ Ela precisa do OLED (o shield `nice_oled` com o widget de status) e de `CONFIG_K
 | esquerda | número de WPM | `CONFIG_NICE_OLED_WIDGET_WPM_LABEL_CUSTOM_X` e `_Y` | |
 | esquerda | gráfico de WPM | x -1 e y 95, a grade embaixo dele (ela não tem opção) | os pontos do gráfico |
 
-**Animações.** Com a opção ligada, todas as animações e imagens do periférico são compiladas (crystal, cat, head, spaceman, pokemon, vim e vip_marcos), seja qual for o que `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_*` diz, então o ZMK Studio pode alternar entre elas com o teclado funcionando; as opções só escolhem a que aparece no início. Um ciclo leva o tempo que pertence a cada animação (960 ms para crystal e cat, 4800 ms para head e spaceman, 10000 ms para pokemon), exceto a que o build escolheu, que mantém `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_MS`; o ZMK Studio pode definir outro tempo, de 100 a 60000 ms. Com `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_SMART_BATTERY` a animação não faz parte do layout.
+**Animações e imagens.** Com a opção ligada, todas as animações e imagens do periférico são compiladas, seja qual for o que `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_*` diz, então o ZMK Studio pode alternar entre elas com o teclado funcionando; as opções só escolhem a que aparece no início. São 26: as 7 do shield original (crystal, cat, head, spaceman, pokemon, vim e vip_marcos) e as 19 de [Novas imagens da tela direita](#novas-imagens-da-tela-direita). Um ciclo leva o tempo que pertence a cada animação (960 ms para crystal e cat, 4800 ms para head e spaceman, 10000 ms para pokemon, e o da tabela das imagens novas para essas), exceto a que o build escolheu, que mantém `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_MS`; o ZMK Studio pode definir outro tempo, de 100 a 60000 ms. Com `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_SMART_BATTERY` a animação não faz parte do layout. A imagem também pode ser girada, recortada em um pedaço e misturada com os widgets: veja [Imagem no canvas](#imagem-no-canvas-girar-recortar-e-misturar).
 
-**Custo.** Medido com o Corne do [lenerdz/corne-zmk](https://github.com/lenerdz/corne-zmk): a metade direita cresce 68.520 bytes de flash (todas as animações são compiladas) e 560 bytes de RAM, e a metade esquerda 1.432 bytes de flash e 224 bytes de RAM.
+**Custo.** Medido com o Corne do [lenerdz/corne-zmk](https://github.com/lenerdz/corne-zmk) (o build das revisões do `config/west.yml` dele), em comparação com o mesmo build sem o layout: a metade direita cresce 140.036 bytes de flash (todas as animações e imagens são compiladas: 64.064 bytes delas são as imagens que o `make_pictures.py` desenha, e o resto é o código que coloca a imagem no canvas) e 616 bytes de RAM, e a metade esquerda 1.512 bytes de flash e 240 bytes de RAM.
 
 **Fora do escopo.** O bongo cat, o cachorro luna, o bongo cat responsivo, os indicadores de HID e de modificadores, os widgets de Raw HID, a arte de repouso e a animação de bateria inteligente não fazem parte do layout: eles são desenhados onde o build diz.
 
-**Situação.** Compila para as duas metades no CI do [lenerdz/corne-zmk](https://github.com/lenerdz/corne-zmk). Ainda não foi experimentado em um teclado real: os widgets se movendo e sumindo, a animação alternando com o teclado funcionando, o tempo do ciclo e o redesenho do periférico quando uma configuração chega a ele.
+**Situação.** Compila para as duas metades no CI do [lenerdz/corne-zmk](https://github.com/lenerdz/corne-zmk), e o código que coloca a imagem no canvas e os arquivos que o `make_pictures.py` escreve são testados em um computador (veja abaixo). A primeira versão do layout (os widgets se movendo e sumindo, a animação alternando) foi usada em um Corne de verdade, e o dono dele relatou que funcionou, sem detalhes sobre cada operação. O que veio depois ainda não foi experimentado em um teclado real: a imagem no canvas (um widget sobre ela, o giro, o recorte e a mistura), as 19 imagens novas, os quadros que agora vêm de um work item que desenha a tela de novo a cada quadro (com que frequência ele faz isso, e quanto isso custa em bateria, não foi medido), e o redesenho do periférico quando essas configurações chegam a ele.
+
+### Imagem no canvas: girar, recortar e misturar
+
+Com `CONFIG_KEYPAW_OLED_LAYOUT=y` a imagem da tela direita deixa de ser um objeto de animação do LVGL sobre o canvas. O `widgets/picture.c` (C puro, sem LVGL e sem Zephyr) coloca o quadro no canvas, pixel a pixel, **depois** que os widgets foram desenhados e o canvas foi girado para o painel (`animation_composite()` de `widgets/animation.c`), então um widget pode ficar sobre a imagem (a bateria da metade direita inclusive) e a imagem pode ser girada e recortada. Os quadros vêm de um work item com atraso da work queue do display, que avança o quadro (no mínimo 20 ms cada) e desenha a tela de novo. O toast de RGB é escrito no canvas junto com os outros widgets, então a imagem vai por cima dele também. Sem a opção a animação é desenhada como antes.
+
+Mais quatro configurações do módulo (os ids e as faixas estão no README dele, em "Layout das telas OLED") dizem como a imagem é colocada:
+
+| Configuração | Id | Valores | Padrão |
+|---|---|---|---|
+| `KP_OLED_R_ANIM_ROT` | 112 | quartos de volta no sentido horário, como se olha a tela: de 0 a 3 | 0 |
+| `KP_OLED_R_ANIM_MIX` | 113 | como um pixel aceso da imagem se mistura com o canvas: 0 soma (o pixel fica aceso seja qual for o que havia ali, então um widget some onde a imagem é clara), 1 inverte (um widget sobre a imagem aparece em reverso, então continua legível) | 1 |
+| `KP_OLED_R_ANIM_CROP_XY` | 114 | o canto do pedaço que aparece, `x \| y << 8`, em pixels da imagem em pé (um canto além da imagem é tomado como o último pixel dela) | 0 |
+| `KP_OLED_R_ANIM_CROP_WH` | 115 | o tamanho do pedaço, `w \| h << 8`; uma largura ou uma altura 0 é a imagem inteira, e o que passa da imagem é cortado | 0 |
+
+Os pixels apagados de uma imagem nunca tocam o canvas. As imagens são guardadas giradas um quarto de volta no sentido horário (o canvas é girado 270 graus para o painel), então se fala de três imagens: a **guardada** (os pixels do arquivo), a **em pé** (a guardada girada um quarto de volta no sentido anti-horário, e depois girada pelos quartos de volta da configuração: o recorte é um pedaço desta) e a **exibida** (a em pé girada de novo um quarto de volta no sentido horário: o que vai parar no canvas). A posição (`CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_CUSTOM_X` e `_Y`, ou a configuração do ZMK Studio) é o canto superior esquerdo da imagem exibida **inteira**, e um recorte só esconde o resto, então o pedaço não pula quando muda.
+
+`python tests/picture/test_picture.py` compila o `picture.c` como ele é, o chama a partir do Python e o compara com um modelo que gira arrays inteiros em vez de calcular índices, em 1.500 imagens aleatórias (tamanhos, giros, recortes, posições e misturas aleatórios, com a tinta escura ou clara); outros testes verificam que nada fora do canvas é tocado, que argumentos inválidos não desenham nada e que um recorte que começa além da imagem mantém o último pixel dela (precisa de numpy, Pillow e de um compilador C, ou do pacote `ziglang`: `python -m ziglang cc`). Nada disso foi visto em uma tela real.
+
+### Novas imagens da tela direita
+
+Os tipos de 7 a 25 são desenhados por `scripts/pictures/make_pictures.py`, em pé e com 32 pixels de largura (a largura do painel), e escritos como arquivos LVGL de 1 bit por pixel como os outros assets (`assets/pictures/<name>.c`), com a lista `widgets/pictures.h` (a tabela `PICTURES(X)` que o `widgets/animation.c` transforma na sua tabela de tipos) e o manifesto `assets/pictures/pictures.json` (o tipo, o tamanho, os quadros e o ciclo de cada uma, que o app do ZMK Studio lê para fazer os sprites dele).
+
+| Tipo | Imagem | Tamanho | Quadros | Um ciclo | O que é |
+|---|---|---|---|---|---|
+| 7 | `equalizer` | 32 x 64 | 16 | 1200 ms | Oito barras de um equalizador de som que sobem e descem, cada uma com uma marca que cai devagar atrás dela |
+| 8 | `radar` | 32 x 32 | 24 | 2400 ms | Uma varredura de radar com um rastro que se apaga, e três pontos que acendem quando ela passa |
+| 9 | `heartbeat` | 32 x 64 | 16 | 1600 ms | O traçado de um monitor cardíaco, rolando para baixo e se apagando conforme envelhece |
+| 10 | `rain` | 32 x 128 | 32 | 3200 ms | Chuva digital: riscos que caem pela tela inteira, brilhantes na ponta e piscando atrás |
+| 11 | `cube` | 32 x 32 | 16 | 1600 ms | Um cubo de arestas que gira, com as arestas de trás pontilhadas |
+| 12 | `atom` | 32 x 32 | 24 | 2400 ms | Um núcleo com três órbitas e um elétron em cada uma |
+| 13 | `helix` | 32 x 128 | 16 | 1600 ms | As duas fitas de uma hélice de DNA girando em torno do eixo, com os degraus entre elas |
+| 14 | `warp` | 32 x 64 | 24 | 2400 ms | Estrelas que voam do meio, mais rápidas e mais longas quando se aproximam |
+| 15 | `sonar` | 32 x 32 | 16 | 1600 ms | Anéis que se espalham do meio e se apagam |
+| 16 | `bounce` | 32 x 64 | 24 | 1200 ms | Uma bola que quica, se achata no chão e tem uma sombra |
+| 17 | `flame` | 32 x 64 | 16 | 1200 ms | Um fogo que tremula |
+| 18 | `mountains` | 32 x 128 | estática | nenhum | Um céu noturno com uma lua, e três cadeias de montanhas |
+| 19 | `skyline` | 32 x 128 | estática | nenhum | Uma cidade à noite, com as janelas acesas e algumas estrelas |
+| 20 | `circuit` | 32 x 128 | estática | nenhum | As trilhas de uma placa de circuito, com um chip |
+| 21 | `alien` | 32 x 32 | estática | nenhum | Um pequeno alienígena robô em um chão estrelado |
+| 22 | `heart` | 32 x 32 | estática | nenhum | Um coração com um brilho |
+| 23 | `keyboard` | 32 x 64 | estática | nenhum | As duas metades de um Corne, vistas de cima |
+| 24 | `pulsar` | 32 x 128 | estática | nenhum | Linhas de um sinal, uma acima da outra, que escondem as de trás, como a capa de um disco antigo |
+| 25 | `rocket` | 32 x 64 | estática | nenhum | Um foguete decolando |
+
+| Comando | O que faz |
+|---|---|
+| `python scripts/pictures/make_pictures.py` | lista o que existe |
+| `python scripts/pictures/make_pictures.py --preview DIR` | escreve em `DIR` folhas de PNG para olhar, e nenhum outro arquivo |
+| `python scripts/pictures/make_pictures.py --write` | escreve os arquivos C, o `pictures.h` e o `pictures.json` |
+| `python scripts/pictures/make_pictures.py --check` | falha quando os arquivos não são o que `--write` faz |
+| `python scripts/pictures/make_pictures.py --check --module <zmk-rgb-matrix>` | também verifica que o enum do módulo tem as imagens |
+
+O número de um tipo é o que o teclado guarda na sua flash, então uma imagem nova é **só acrescentada no fim**: acrescente o desenho dela em `scripts/pictures/animations.py` ou `stills.py`, ponha o mesmo nome com o mesmo número em `enum kp_oled_anim_kind` do módulo (`include/zmk/display_settings.h`), aumente `KP_OLED_ANIM_KIND_COUNT`, rode `--write` e gere de novo os sprites do app (`scripts/oled-assets/convert.py` do [lenerdz/zmk-studio](https://github.com/lenerdz/zmk-studio), que lê o `pictures.json`). `python tests/picture/test_generated.py` verifica que os arquivos são o que o script faz, que um compilador C lê neles os mesmos bytes que um analisador do texto lê (e que eles voltam a ser as imagens que foram desenhadas), e que a lista é consistente. A aparência dos desenhos foi conferida em folhas de arquivos PNG, não em uma tela real.
 
 ## Específico do central
 

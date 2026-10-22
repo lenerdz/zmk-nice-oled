@@ -65,7 +65,7 @@ The companion host application, `zmk-hid-host`, provides the necessary data brid
 - **`nice_custom` Shield**: Position drivers via config, no code required.
 - **Neck Strain Reduction**: View info on keyboard instead of monitor.
 - **Dark Mode Friendly**: Optimized for nice!oled.
-- **Layout at Run Time (optional)**: with the [lenerdz/zmk-rgb-matrix](https://github.com/lenerdz/zmk-rgb-matrix) module, ZMK Studio chooses which widgets are drawn, where, and which animation the peripheral plays; see [OLED Layout at Run Time](#oled-layout-at-run-time-central--peripheral).
+- **Layout at Run Time (optional)**: with the [lenerdz/zmk-rgb-matrix](https://github.com/lenerdz/zmk-rgb-matrix) module, ZMK Studio chooses which widgets are drawn, where, which animation the peripheral plays, and how that picture is turned, cut to a piece and mixed with the widgets over it; see [OLED Layout at Run Time](#oled-layout-at-run-time-central--peripheral).
 
 ### Central Screen
 - **WPM Widgets**: Graphs, Speedometer, Luna, Bongo Cat.
@@ -81,6 +81,7 @@ The companion host application, `zmk-hid-host`, provides the necessary data brid
 - **Smart Battery**: Efficient battery status animation.
 - **Sleep Art**: Custom images during idle/sleep.
 - **Static Images**: Vim, Custom Logos (low power mode).
+- **More Pictures (optional, with the layout at run time)**: 11 more animations and 8 more still images, drawn by `scripts/pictures/`, that ZMK Studio can pick, turn, cut to a piece and mix with the widgets; see [New Pictures of the Right Screen](#new-pictures-of-the-right-screen).
 
 # Gallery
 
@@ -277,13 +278,66 @@ It needs the OLED (the `nice_oled` shield with the status widget) and `CONFIG_KE
 | left | WPM number | `CONFIG_NICE_OLED_WIDGET_WPM_LABEL_CUSTOM_X` and `_Y` | |
 | left | WPM graph | x -1 and y 95, the grid under it (it has no option) | the points of the graph |
 
-**Animations.** With the option on, every animation and image of the peripheral is built in (crystal, cat, head, spaceman, pokemon, vim and vip_marcos), whatever `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_*` says, so ZMK Studio can switch between them while the keyboard runs; the options only choose the one shown at first. A cycle takes the time that belongs to each animation (960 ms for crystal and cat, 4800 ms for head and spaceman, 10000 ms for pokemon), except for the one the build chose, which keeps `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_MS`; ZMK Studio can set another time, from 100 to 60000 ms. With `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_SMART_BATTERY` the animation is not part of the layout.
+**Animations and images.** With the option on, every animation and image of the peripheral is built in, whatever `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_*` says, so ZMK Studio can switch between them while the keyboard runs; the options only choose the one shown at first. There are 26 of them: the 7 of the original shield (crystal, cat, head, spaceman, pokemon, vim and vip_marcos) and the 19 of [New Pictures of the Right Screen](#new-pictures-of-the-right-screen). A cycle takes the time that belongs to each animation (960 ms for crystal and cat, 4800 ms for head and spaceman, 10000 ms for pokemon, and the one of the table of the new pictures for those), except for the one the build chose, which keeps `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_MS`; ZMK Studio can set another time, from 100 to 60000 ms. With `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_SMART_BATTERY` the animation is not part of the layout. The picture can also be turned, cut to a piece and mixed with the widgets: see [Picture on the Canvas](#picture-on-the-canvas-turn-crop-and-mix).
 
-**Cost.** Measured with the Corne of [lenerdz/corne-zmk](https://github.com/lenerdz/corne-zmk): the right half grows 68,520 bytes of flash (every animation is built in) and 560 bytes of RAM, and the left half 1,432 bytes of flash and 224 bytes of RAM.
+**Cost.** Measured with the Corne of [lenerdz/corne-zmk](https://github.com/lenerdz/corne-zmk) (the build of the revisions of its `config/west.yml`), against the same build without the layout: the right half grows 140,036 bytes of flash (every animation and image is built in: 64,064 bytes of them are the pictures that `make_pictures.py` draws, and the rest is the code that puts the picture on the canvas) and 616 bytes of RAM, and the left half 1,512 bytes of flash and 240 bytes of RAM.
 
 **Not covered.** The bongo cat, the luna dog, the responsive bongo cat, the HID and modifier indicators, the Raw HID widgets, the sleep art and the smart battery animation are not part of the layout: they are drawn where the build says.
 
-**Status.** It compiles for both halves in the CI of [lenerdz/corne-zmk](https://github.com/lenerdz/corne-zmk). It has not been tried on a real keyboard yet: the widgets moving and hiding, the animation switching while the keyboard runs, the cycle time, and the redraw of the peripheral when a setting reaches it.
+**Status.** It compiles for both halves in the CI of [lenerdz/corne-zmk](https://github.com/lenerdz/corne-zmk), and the code that puts the picture on the canvas and the files that `make_pictures.py` writes are tested on a computer (see below). The first version of the layout (the widgets moving and hiding, the animation switching) was used on a real Corne, and its owner reported that it worked, without detail about each operation. What came after it has not been tried on a real keyboard yet: the picture on the canvas (a widget over it, the turn, the crop and the mix), the 19 new pictures, the frames that now come from a work item that draws the screen again at every frame (how often it does, and what that costs in battery, is not measured), and the redraw of the peripheral when these settings reach it.
+
+### Picture on the Canvas: Turn, Crop and Mix
+
+With `CONFIG_KEYPAW_OLED_LAYOUT=y` the picture of the right screen is no longer an LVGL animation object over the canvas. `widgets/picture.c` (plain C, with no LVGL and no Zephyr) puts the frame on the canvas, pixel by pixel, **after** the widgets were drawn and the canvas was rotated for the panel (`animation_composite()` of `widgets/animation.c`), so a widget can be over the picture (the battery of the right half included) and the picture can be turned and cut. The frames come from a delayed work item of the display work queue that advances the frame (at least 20 ms each) and draws the screen again. The RGB toast is written on the canvas with the other widgets, so the picture goes over it too. Without the option the animation is drawn as before.
+
+Four more settings of the module (the ids and the ranges are in its README, "OLED layout") say how the picture is put:
+
+| Setting | Id | Values | Default |
+|---|---|---|---|
+| `KP_OLED_R_ANIM_ROT` | 112 | quarter turns clockwise, as the screen is looked at: 0 to 3 | 0 |
+| `KP_OLED_R_ANIM_MIX` | 113 | how a lit pixel of the picture mixes with the canvas: 0 adds (the pixel is lit whatever was there, so a widget disappears where the picture is bright), 1 flips (a widget over the picture shows in reverse, so it stays readable) | 1 |
+| `KP_OLED_R_ANIM_CROP_XY` | 114 | the corner of the piece that shows, `x \| y << 8`, in pixels of the upright picture (a corner past the picture is taken as its last pixel) | 0 |
+| `KP_OLED_R_ANIM_CROP_WH` | 115 | the size of the piece, `w \| h << 8`; a width or a height of 0 is the whole picture, and what goes past the picture is cut off | 0 |
+
+The unlit pixels of a picture never touch the canvas. The pictures are stored turned a quarter of a turn clockwise (the canvas is rotated by 270 degrees for the panel), so three pictures are talked about: the **stored** one (the pixels of the file), the **upright** one (the stored one turned a quarter of a turn counterclockwise, and then turned by the quarter turns of the setting: the crop is a piece of this one) and the **displayed** one (the upright one turned a quarter of a turn clockwise again: what lands on the canvas). The position (`CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_CUSTOM_X` and `_Y`, or the setting of ZMK Studio) is the top left corner of the **whole** displayed picture, and a crop only hides the rest, so the piece does not jump when it changes.
+
+`python tests/picture/test_picture.py` compiles `picture.c` as it is, calls it from Python and compares it with a model that turns whole arrays instead of calculating indexes, on 1,500 random pictures (random sizes, turns, crops, places and mixes, with the ink dark or light); other tests check that nothing outside the canvas is touched, that bad arguments draw nothing and that a crop that starts past the picture keeps its last pixel (it needs numpy, Pillow and a C compiler, or the `ziglang` package: `python -m ziglang cc`). Nothing of this was seen on a real screen.
+
+### New Pictures of the Right Screen
+
+The kinds 7 to 25 are drawn by `scripts/pictures/make_pictures.py`, upright and 32 pixels wide (the width of the panel), and written as LVGL files of 1 bit per pixel like the other assets (`assets/pictures/<name>.c`), with the list `widgets/pictures.h` (the table `PICTURES(X)` that `widgets/animation.c` turns into its table of kinds) and the manifest `assets/pictures/pictures.json` (the kind, the size, the frames and the cycle of each one, which the ZMK Studio app reads to make its sprites).
+
+| Kind | Picture | Size | Frames | A cycle | What it is |
+|---|---|---|---|---|---|
+| 7 | `equalizer` | 32 x 64 | 16 | 1200 ms | Eight bars of a sound equalizer that rise and fall, each with a mark that drops slowly behind it |
+| 8 | `radar` | 32 x 32 | 24 | 2400 ms | A radar sweep with a trail that fades, and three blips that light up as it goes by |
+| 9 | `heartbeat` | 32 x 64 | 16 | 1600 ms | The trace of a heart monitor, scrolling down and fading as it gets old |
+| 10 | `rain` | 32 x 128 | 32 | 3200 ms | Digital rain: streaks that fall down the whole screen, bright at the head and flickering behind it |
+| 11 | `cube` | 32 x 32 | 16 | 1600 ms | A wire cube that turns, with the edges at the back dotted |
+| 12 | `atom` | 32 x 32 | 24 | 2400 ms | A nucleus with three orbits and an electron on each |
+| 13 | `helix` | 32 x 128 | 16 | 1600 ms | The two strands of a DNA helix turning around their axis, with the rungs between them |
+| 14 | `warp` | 32 x 64 | 24 | 2400 ms | Stars that fly out from the middle, faster and longer as they get near |
+| 15 | `sonar` | 32 x 32 | 16 | 1600 ms | Rings that spread from the middle and fade |
+| 16 | `bounce` | 32 x 64 | 24 | 1200 ms | A ball that bounces, squashes at the floor and has a shadow |
+| 17 | `flame` | 32 x 64 | 16 | 1200 ms | A fire that flickers |
+| 18 | `mountains` | 32 x 128 | still | none | A night sky with a moon, and three ridges of mountains |
+| 19 | `skyline` | 32 x 128 | still | none | A city at night, with the windows that are lit and a few stars |
+| 20 | `circuit` | 32 x 128 | still | none | The tracks of a circuit board, with a chip |
+| 21 | `alien` | 32 x 32 | still | none | A small robot alien on a starry floor |
+| 22 | `heart` | 32 x 32 | still | none | A heart with a shine |
+| 23 | `keyboard` | 32 x 64 | still | none | The two halves of a Corne, as seen from above |
+| 24 | `pulsar` | 32 x 128 | still | none | Lines of a signal, one above the other, that hide the ones behind them, like the cover of an old record |
+| 25 | `rocket` | 32 x 64 | still | none | A rocket taking off |
+
+| Command | What it does |
+|---|---|
+| `python scripts/pictures/make_pictures.py` | lists what there is |
+| `python scripts/pictures/make_pictures.py --preview DIR` | writes PNG sheets to look at in `DIR`, and no other file |
+| `python scripts/pictures/make_pictures.py --write` | writes the C files, `pictures.h` and `pictures.json` |
+| `python scripts/pictures/make_pictures.py --check` | fails when the files are not what `--write` makes |
+| `python scripts/pictures/make_pictures.py --check --module <zmk-rgb-matrix>` | also checks that the enum of the module has the pictures |
+
+The number of a kind is what the keyboard keeps in its flash, so a new picture is **only added at the end**: add its drawing in `scripts/pictures/animations.py` or `stills.py`, put the same name with the same number in `enum kp_oled_anim_kind` of the module (`include/zmk/display_settings.h`), raise `KP_OLED_ANIM_KIND_COUNT`, run `--write`, and regenerate the sprites of the app (`scripts/oled-assets/convert.py` of [lenerdz/zmk-studio](https://github.com/lenerdz/zmk-studio), which reads `pictures.json`). `python tests/picture/test_generated.py` checks that the files are what the script makes, that a C compiler reads in them the same bytes that a parser of the text does (and that they turn back into the pictures that were drawn), and that the list is consistent. The look of the drawings was checked on sheets of PNG files, not on a real screen.
 
 ## Central Specific
 
