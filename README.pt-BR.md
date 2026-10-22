@@ -316,7 +316,7 @@ Os tipos de 7 a 25 são desenhados por `scripts/pictures/make_pictures.py`, em p
 | 8 | `radar` | 32 x 32 | 24 | 2400 ms | Uma varredura de radar com um rastro que se apaga, e três pontos que acendem quando ela passa |
 | 9 | `heartbeat` | 32 x 64 | 16 | 1600 ms | O traçado de um monitor cardíaco, rolando para baixo e se apagando conforme envelhece |
 | 10 | `rain` | 32 x 128 | 32 | 3200 ms | Chuva digital: riscos que caem pela tela inteira, brilhantes na ponta e piscando atrás |
-| 11 | `cube` | 32 x 32 | 16 | 1600 ms | Um cubo de arestas que gira, com as arestas de trás pontilhadas |
+| 11 | `cube` | 32 x 32 | 16 | 1600 ms | Um cubo de arame que gira, com as arestas de trás pontilhadas |
 | 12 | `atom` | 32 x 32 | 24 | 2400 ms | Um núcleo com três órbitas e um elétron em cada uma |
 | 13 | `helix` | 32 x 128 | 16 | 1600 ms | As duas fitas de uma hélice de DNA girando em torno do eixo, com os degraus entre elas |
 | 14 | `warp` | 32 x 64 | 24 | 2400 ms | Estrelas que voam do meio, mais rápidas e mais longas quando se aproximam |
