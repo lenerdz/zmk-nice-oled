@@ -2,6 +2,18 @@
 #include <fonts.h>
 #include <zephyr/kernel.h>
 
+#include "layout.h"
+
+// The battery of the left screen (the central) and the one of the right screen (the peripheral)
+// each have a place of their own in the OLED layout
+#if !IS_ENABLED(CONFIG_ZMK_SPLIT) || IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
+#define BATTERY_WIDGET L_BATTERY
+#else
+#define BATTERY_WIDGET R_BATTERY
+#endif
+#define BATTERY_X LAYOUT_X(BATTERY_WIDGET, CONFIG_NICE_OLED_WIDGET_BATTERY_CUSTOM_X)
+#define BATTERY_Y LAYOUT_Y(BATTERY_WIDGET, CONFIG_NICE_OLED_WIDGET_BATTERY_CUSTOM_Y)
+
 LV_IMG_DECLARE(bolt);
 
 #if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_SMART_BATTERY)
@@ -72,7 +84,7 @@ static void draw_level(lv_obj_t *canvas, const struct status_state *state) {
 
     sprintf(text, "%i%%", state->battery);
     // x, y, width, dsc, text
-    canvas_draw_text(canvas, CONFIG_NICE_OLED_WIDGET_BATTERY_CUSTOM_X, CONFIG_NICE_OLED_WIDGET_BATTERY_CUSTOM_Y, 42, &label_right_dsc, text);
+    canvas_draw_text(canvas, BATTERY_X, BATTERY_Y, 42, &label_right_dsc, text);
 }
 
 static void draw_charging_level(lv_obj_t *canvas, const struct status_state *state) {
@@ -88,15 +100,19 @@ static void draw_charging_level(lv_obj_t *canvas, const struct status_state *sta
     char text[10] = {};
 
     sprintf(text, "%i", state->battery);
-    canvas_draw_text(canvas, CONFIG_NICE_OLED_WIDGET_BATTERY_CUSTOM_X, CONFIG_NICE_OLED_WIDGET_BATTERY_CUSTOM_Y, 35, &label_right_dsc, text);
+    canvas_draw_text(canvas, BATTERY_X, BATTERY_Y, 35, &label_right_dsc, text);
 #if IS_ENABLED(CONFIG_NICE_EPAPER_ON)
-    canvas_draw_img(canvas, CONFIG_NICE_OLED_WIDGET_BATTERY_CUSTOM_X + 36, CONFIG_NICE_OLED_WIDGET_BATTERY_CUSTOM_Y + 2, &bolt, &img_dsc);
+    canvas_draw_img(canvas, BATTERY_X + 36, BATTERY_Y + 2, &bolt, &img_dsc);
 #else
-    canvas_draw_img(canvas, CONFIG_NICE_OLED_WIDGET_BATTERY_CUSTOM_X + 25, CONFIG_NICE_OLED_WIDGET_BATTERY_CUSTOM_Y, &bolt, &img_dsc);
+    canvas_draw_img(canvas, BATTERY_X + 25, BATTERY_Y, &bolt, &img_dsc);
 #endif // CONFIG_NICE_EPAPER_ON
 }
 
 void draw_battery_status(lv_obj_t *canvas, const struct status_state *state) {
+    if (!LAYOUT_SHOWN(BATTERY_WIDGET)) {
+        return;
+    }
+
 #if IS_ENABLED(CONFIG_NICE_EPAPER_ON)
     lv_draw_label_dsc_t label_left_dsc;
     init_label_dsc(&label_left_dsc, LVGL_FOREGROUND, &pixel_operator_mono_16, LV_TEXT_ALIGN_LEFT);

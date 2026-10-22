@@ -9,6 +9,13 @@
 #include <zephyr/kernel.h>
 #include <zephyr/sys/util.h>
 
+#include "layout.h"
+
+// The first line of the toast; the second one is below it. With the OLED layout, the place is a
+// setting (the toast itself is turned on and off in the display settings).
+#define TOAST_X LAYOUT_X(R_TOAST, CONFIG_NICE_OLED_WIDGET_LED_TOAST_CUSTOM_X)
+#define TOAST_Y LAYOUT_Y(R_TOAST, CONFIG_NICE_OLED_WIDGET_LED_TOAST_CUSTOM_Y)
+
 /**
  * The labels. Every text is ASCII (the 8 pixel font has no accents), and every line has to fit
  * LED_TOAST_LINE_LEN - 1 characters: 8 characters of 4 pixels fill the 32 pixel wide screen.
@@ -129,10 +136,10 @@ void draw_led_toast(lv_obj_t *canvas, const struct status_state *state) {
     init_label_dsc(&label_dsc, LVGL_FOREGROUND, &pixel_operator_mono_8, LV_TEXT_ALIGN_LEFT);
 
     // x, y, width, dsc, text
-    canvas_draw_text(canvas, CONFIG_NICE_OLED_WIDGET_LED_TOAST_CUSTOM_X,
-                     CONFIG_NICE_OLED_WIDGET_LED_TOAST_CUSTOM_Y, LED_TOAST_LINE_WIDTH, &label_dsc,
+    canvas_draw_text(canvas, TOAST_X,
+                     TOAST_Y, LED_TOAST_LINE_WIDTH, &label_dsc,
                      state->toast_line1);
-    canvas_draw_text(canvas, CONFIG_NICE_OLED_WIDGET_LED_TOAST_CUSTOM_X,
-                     CONFIG_NICE_OLED_WIDGET_LED_TOAST_CUSTOM_Y + LED_TOAST_LINE_PITCH,
+    canvas_draw_text(canvas, TOAST_X,
+                     TOAST_Y + LED_TOAST_LINE_PITCH,
                      LED_TOAST_LINE_WIDTH, &label_dsc, state->toast_line2);
 }

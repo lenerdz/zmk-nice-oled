@@ -1,4 +1,5 @@
 #include <zephyr/kernel.h>
+#include "layout.h"
 #include "profile.h"
 #if !IS_ENABLED(CONFIG_NICE_EPAPER_ON)
 // use custom_fonts.h only for the draw_active_profile_text function
@@ -14,6 +15,13 @@ LV_IMG_DECLARE(profiles);
 
 LV_IMG_DECLARE(profile);
 LV_IMG_DECLARE(profile_active);
+
+// Where the profile marks are: the first one
+#define PROFILE_X LAYOUT_X(L_PROFILE, OFFSET_X)
+#define PROFILE_Y LAYOUT_Y(L_PROFILE, OFFSET_Y)
+#else
+#define PROFILE_X LAYOUT_X(L_PROFILE, CONFIG_NICE_OLED_WIDGET_PROFILE_CUSTOM_X)
+#define PROFILE_Y LAYOUT_Y(L_PROFILE, CONFIG_NICE_OLED_WIDGET_PROFILE_CUSTOM_Y)
 #endif
 
 #if !IS_ENABLED(CONFIG_NICE_OLED_WIDGET_PROFILE_BIG)
@@ -21,7 +29,7 @@ static void draw_inactive_profiles(lv_obj_t *canvas, const struct status_state *
     lv_draw_image_dsc_t img_dsc;
     lv_draw_image_dsc_init(&img_dsc);
 
-    canvas_draw_img(canvas, CONFIG_NICE_OLED_WIDGET_PROFILE_CUSTOM_X, CONFIG_NICE_OLED_WIDGET_PROFILE_CUSTOM_Y, &profiles, &img_dsc);
+    canvas_draw_img(canvas, PROFILE_X, PROFILE_Y, &profiles, &img_dsc);
 }
 
 static void draw_active_profile(lv_obj_t *canvas, const struct status_state *state) {
@@ -30,7 +38,7 @@ static void draw_active_profile(lv_obj_t *canvas, const struct status_state *sta
 
     int offset = state->active_profile_index * 7;
 
-    canvas_draw_rect(canvas, CONFIG_NICE_OLED_WIDGET_PROFILE_CUSTOM_X + offset, CONFIG_NICE_OLED_WIDGET_PROFILE_CUSTOM_Y, 3, 3, &rect_white_dsc);
+    canvas_draw_rect(canvas, PROFILE_X + offset, PROFILE_Y, 3, 3, &rect_white_dsc);
 }
 #endif // !IS_ENABLED(CONFIG_NICE_OLED_WIDGET_PROFILE_BIG)
 
@@ -43,21 +51,27 @@ static void draw_active_profile_text(lv_obj_t *canvas, const struct status_state
     char text[14] = {};
     snprintf(text, sizeof(text), "%d", state->active_profile_index + 1);
 
-    canvas_draw_text(canvas, CONFIG_NICE_OLED_WIDGET_PROFILE_TEXT_CUSTOM_X, CONFIG_NICE_OLED_WIDGET_PROFILE_TEXT_CUSTOM_Y, 35, &label_dsc, text);
+    canvas_draw_text(canvas, LAYOUT_X(L_PROFILE_NUM, CONFIG_NICE_OLED_WIDGET_PROFILE_TEXT_CUSTOM_X), LAYOUT_Y(L_PROFILE_NUM, CONFIG_NICE_OLED_WIDGET_PROFILE_TEXT_CUSTOM_Y), 35, &label_dsc, text);
 }
 #endif // CONFIG_NICE_EPAPER_ON
 
 void draw_profile_status(lv_obj_t *canvas, const struct status_state *state) {
 #if !IS_ENABLED(CONFIG_NICE_EPAPER_ON)
-    draw_active_profile_text(canvas, state);
+    if (LAYOUT_SHOWN(L_PROFILE_NUM)) {
+        draw_active_profile_text(canvas, state);
+    }
 #endif // CONFIG_NICE_EPAPER_ON
+
+    if (!LAYOUT_SHOWN(L_PROFILE)) {
+        return;
+    }
 
 #if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_PROFILE_BIG) //  && IS_ENABLED(CONFIG_NICE_EPAPER_ON)
     lv_draw_image_dsc_t img_dsc;
     lv_draw_image_dsc_init(&img_dsc);
 
     for (int i = 0; i < 5; i++) {
-        canvas_draw_img(canvas, OFFSET_X + (i * 14), OFFSET_Y,
+        canvas_draw_img(canvas, PROFILE_X + (i * 14), PROFILE_Y,
                            i == state->active_profile_index ? &profile_active : &profile, &img_dsc);
     }
 #else

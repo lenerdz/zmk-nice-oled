@@ -18,6 +18,10 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include "output.h"
 #include "screen_peripheral.h"
 
+#if IS_ENABLED(CONFIG_KEYPAW_OLED_LAYOUT)
+#include <zmk/events/display_settings_changed.h>
+#endif
+
 #if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_LED_TOAST)
 #include <string.h>
 
@@ -229,6 +233,39 @@ ZMK_SUBSCRIPTION(widget_led_toast, zmk_rgb_matrix_changed);
 #endif /* IS_ENABLED(CONFIG_NICE_OLED_WIDGET_LED_TOAST) */
 
 /**
+ * OLED layout
+ *
+ * With CONFIG_KEYPAW_OLED_LAYOUT (zmk-rgb-matrix), which widgets are drawn and where, and which
+ * animation (or image) plays and how fast, are settings that ZMK Studio edits. Every draw function
+ * reads them; the animation is an object of its own, which animation_apply() puts in line.
+ **/
+
+#if IS_ENABLED(CONFIG_KEYPAW_OLED_LAYOUT)
+struct oled_layout_state {
+    uint8_t unused;
+};
+
+static void oled_layout_update_cb(struct oled_layout_state state) {
+#if !IS_ENABLED(CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_SMART_BATTERY)
+    animation_apply();
+#endif
+
+    struct zmk_widget_screen *widget;
+    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
+        draw_canvas(widget->obj, &widget->state);
+    }
+}
+
+static struct oled_layout_state oled_layout_get_state(const zmk_event_t *eh) {
+    return (struct oled_layout_state){0};
+}
+
+ZMK_DISPLAY_WIDGET_LISTENER(widget_oled_layout, struct oled_layout_state, oled_layout_update_cb,
+                            oled_layout_get_state)
+ZMK_SUBSCRIPTION(widget_oled_layout, zmk_display_settings_changed);
+#endif // IS_ENABLED(CONFIG_KEYPAW_OLED_LAYOUT)
+
+/**
  * Initialization
  **/
 
@@ -249,6 +286,9 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
     widget_peripheral_status_init();
 #if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_LED_TOAST)
     widget_led_toast_init();
+#endif
+#if IS_ENABLED(CONFIG_KEYPAW_OLED_LAYOUT)
+    widget_oled_layout_init();
 #endif
 
 #if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_WPM)

@@ -24,9 +24,14 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #endif
 
 #include <fonts.h>
+#include "layout.h"
 #include "output.h"
 #include "profile.h"
 #include "screen.h"
+
+#if IS_ENABLED(CONFIG_KEYPAW_OLED_LAYOUT)
+#include <zmk/events/display_settings_changed.h>
+#endif
 
 #ifdef CONFIG_NICE_OLED_WIDGET_RAW_HID
 #include <lvgl.h>
@@ -61,6 +66,10 @@ struct battery_state {
  * y lo muestra como una cadena de texto simple en las coordenadas especificadas.
  */
 static void draw_battery_text(lv_obj_t *canvas, const struct status_state *state) {
+    if (!LAYOUT_SHOWN(L_BATTERY)) {
+        return;
+    }
+
     // Un buffer de texto más grande para manejar múltiples baterías
     char text[32] = "";
     lv_draw_label_dsc_t label_dsc;
@@ -116,7 +125,8 @@ static void draw_battery_text(lv_obj_t *canvas, const struct status_state *state
 #endif
 
     // Dibuja la cadena de texto final en la pantalla
-    canvas_draw_text(canvas, 0, 19, lv_obj_get_width(canvas), &label_dsc, text);
+    canvas_draw_text(canvas, LAYOUT_X(L_BATTERY, 0), LAYOUT_Y(L_BATTERY, 19),
+                     lv_obj_get_width(canvas), &label_dsc, text);
 }
 /*
 static void draw_battery_text(lv_obj_t *canvas, const struct status_state *state) {
@@ -1106,6 +1116,35 @@ ZMK_SUBSCRIPTION(widget_wpm_status, zmk_wpm_state_changed);
 #endif // IS_ENABLED(CONFIG_NICE_OLED_WIDGET_WPM)
 
 /**
+ * OLED layout
+ *
+ * With CONFIG_KEYPAW_OLED_LAYOUT (zmk-rgb-matrix), which widgets are drawn and where are settings
+ * that ZMK Studio edits. Every draw function reads them, so when one changes the screen is drawn
+ * again.
+ **/
+
+#if IS_ENABLED(CONFIG_KEYPAW_OLED_LAYOUT)
+struct oled_layout_state {
+    uint8_t unused;
+};
+
+static void oled_layout_update_cb(struct oled_layout_state state) {
+    struct zmk_widget_screen *widget;
+    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
+        draw_canvas(widget->obj, &widget->state);
+    }
+}
+
+static struct oled_layout_state oled_layout_get_state(const zmk_event_t *eh) {
+    return (struct oled_layout_state){0};
+}
+
+ZMK_DISPLAY_WIDGET_LISTENER(widget_oled_layout, struct oled_layout_state, oled_layout_update_cb,
+                            oled_layout_get_state)
+ZMK_SUBSCRIPTION(widget_oled_layout, zmk_display_settings_changed);
+#endif // IS_ENABLED(CONFIG_KEYPAW_OLED_LAYOUT)
+
+/**
  * Initialization
  **/
 
@@ -1194,6 +1233,10 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
         // Otros campos HID se inicializarán a 0 o sus valores por defecto
     }
 #endif // CONFIG_NICE_OLED_WIDGET_RAW_HID
+
+#if IS_ENABLED(CONFIG_KEYPAW_OLED_LAYOUT)
+    widget_oled_layout_init();
+#endif
 
     // tiene que estar siempre al final por la sobre exposicion!!
 #if IS_ENABLED(CONFIG_NICE_OLED_SHOW_SLEEP_ART_ON_IDLE) ||                                         \
