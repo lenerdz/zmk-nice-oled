@@ -259,6 +259,444 @@ LV_IMG_DECLARE(pic_pulsar);
 
 LV_IMG_DECLARE(pic_rocket);
 
+LV_IMG_DECLARE(pic_waterfall_00);
+LV_IMG_DECLARE(pic_waterfall_01);
+LV_IMG_DECLARE(pic_waterfall_02);
+LV_IMG_DECLARE(pic_waterfall_03);
+LV_IMG_DECLARE(pic_waterfall_04);
+LV_IMG_DECLARE(pic_waterfall_05);
+LV_IMG_DECLARE(pic_waterfall_06);
+LV_IMG_DECLARE(pic_waterfall_07);
+LV_IMG_DECLARE(pic_waterfall_08);
+LV_IMG_DECLARE(pic_waterfall_09);
+LV_IMG_DECLARE(pic_waterfall_10);
+LV_IMG_DECLARE(pic_waterfall_11);
+LV_IMG_DECLARE(pic_waterfall_12);
+LV_IMG_DECLARE(pic_waterfall_13);
+LV_IMG_DECLARE(pic_waterfall_14);
+LV_IMG_DECLARE(pic_waterfall_15);
+
+LV_IMG_DECLARE(pic_lava_00);
+LV_IMG_DECLARE(pic_lava_01);
+LV_IMG_DECLARE(pic_lava_02);
+LV_IMG_DECLARE(pic_lava_03);
+LV_IMG_DECLARE(pic_lava_04);
+LV_IMG_DECLARE(pic_lava_05);
+LV_IMG_DECLARE(pic_lava_06);
+LV_IMG_DECLARE(pic_lava_07);
+LV_IMG_DECLARE(pic_lava_08);
+LV_IMG_DECLARE(pic_lava_09);
+LV_IMG_DECLARE(pic_lava_10);
+LV_IMG_DECLARE(pic_lava_11);
+LV_IMG_DECLARE(pic_lava_12);
+LV_IMG_DECLARE(pic_lava_13);
+LV_IMG_DECLARE(pic_lava_14);
+LV_IMG_DECLARE(pic_lava_15);
+
+LV_IMG_DECLARE(pic_lightning_00);
+LV_IMG_DECLARE(pic_lightning_01);
+LV_IMG_DECLARE(pic_lightning_02);
+LV_IMG_DECLARE(pic_lightning_03);
+LV_IMG_DECLARE(pic_lightning_04);
+LV_IMG_DECLARE(pic_lightning_05);
+LV_IMG_DECLARE(pic_lightning_06);
+LV_IMG_DECLARE(pic_lightning_07);
+LV_IMG_DECLARE(pic_lightning_08);
+LV_IMG_DECLARE(pic_lightning_09);
+LV_IMG_DECLARE(pic_lightning_10);
+LV_IMG_DECLARE(pic_lightning_11);
+LV_IMG_DECLARE(pic_lightning_12);
+LV_IMG_DECLARE(pic_lightning_13);
+LV_IMG_DECLARE(pic_lightning_14);
+LV_IMG_DECLARE(pic_lightning_15);
+
+LV_IMG_DECLARE(pic_snow_00);
+LV_IMG_DECLARE(pic_snow_01);
+LV_IMG_DECLARE(pic_snow_02);
+LV_IMG_DECLARE(pic_snow_03);
+LV_IMG_DECLARE(pic_snow_04);
+LV_IMG_DECLARE(pic_snow_05);
+LV_IMG_DECLARE(pic_snow_06);
+LV_IMG_DECLARE(pic_snow_07);
+LV_IMG_DECLARE(pic_snow_08);
+LV_IMG_DECLARE(pic_snow_09);
+LV_IMG_DECLARE(pic_snow_10);
+LV_IMG_DECLARE(pic_snow_11);
+LV_IMG_DECLARE(pic_snow_12);
+LV_IMG_DECLARE(pic_snow_13);
+LV_IMG_DECLARE(pic_snow_14);
+LV_IMG_DECLARE(pic_snow_15);
+LV_IMG_DECLARE(pic_snow_16);
+LV_IMG_DECLARE(pic_snow_17);
+LV_IMG_DECLARE(pic_snow_18);
+LV_IMG_DECLARE(pic_snow_19);
+LV_IMG_DECLARE(pic_snow_20);
+LV_IMG_DECLARE(pic_snow_21);
+LV_IMG_DECLARE(pic_snow_22);
+LV_IMG_DECLARE(pic_snow_23);
+
+LV_IMG_DECLARE(pic_jellyfish_00);
+LV_IMG_DECLARE(pic_jellyfish_01);
+LV_IMG_DECLARE(pic_jellyfish_02);
+LV_IMG_DECLARE(pic_jellyfish_03);
+LV_IMG_DECLARE(pic_jellyfish_04);
+LV_IMG_DECLARE(pic_jellyfish_05);
+LV_IMG_DECLARE(pic_jellyfish_06);
+LV_IMG_DECLARE(pic_jellyfish_07);
+LV_IMG_DECLARE(pic_jellyfish_08);
+LV_IMG_DECLARE(pic_jellyfish_09);
+LV_IMG_DECLARE(pic_jellyfish_10);
+LV_IMG_DECLARE(pic_jellyfish_11);
+LV_IMG_DECLARE(pic_jellyfish_12);
+LV_IMG_DECLARE(pic_jellyfish_13);
+LV_IMG_DECLARE(pic_jellyfish_14);
+LV_IMG_DECLARE(pic_jellyfish_15);
+
+LV_IMG_DECLARE(pic_tetris_00);
+LV_IMG_DECLARE(pic_tetris_01);
+LV_IMG_DECLARE(pic_tetris_02);
+LV_IMG_DECLARE(pic_tetris_03);
+LV_IMG_DECLARE(pic_tetris_04);
+LV_IMG_DECLARE(pic_tetris_05);
+LV_IMG_DECLARE(pic_tetris_06);
+LV_IMG_DECLARE(pic_tetris_07);
+LV_IMG_DECLARE(pic_tetris_08);
+LV_IMG_DECLARE(pic_tetris_09);
+LV_IMG_DECLARE(pic_tetris_10);
+LV_IMG_DECLARE(pic_tetris_11);
+LV_IMG_DECLARE(pic_tetris_12);
+LV_IMG_DECLARE(pic_tetris_13);
+LV_IMG_DECLARE(pic_tetris_14);
+LV_IMG_DECLARE(pic_tetris_15);
+LV_IMG_DECLARE(pic_tetris_16);
+LV_IMG_DECLARE(pic_tetris_17);
+LV_IMG_DECLARE(pic_tetris_18);
+LV_IMG_DECLARE(pic_tetris_19);
+
+LV_IMG_DECLARE(pic_pong_00);
+LV_IMG_DECLARE(pic_pong_01);
+LV_IMG_DECLARE(pic_pong_02);
+LV_IMG_DECLARE(pic_pong_03);
+LV_IMG_DECLARE(pic_pong_04);
+LV_IMG_DECLARE(pic_pong_05);
+LV_IMG_DECLARE(pic_pong_06);
+LV_IMG_DECLARE(pic_pong_07);
+LV_IMG_DECLARE(pic_pong_08);
+LV_IMG_DECLARE(pic_pong_09);
+LV_IMG_DECLARE(pic_pong_10);
+LV_IMG_DECLARE(pic_pong_11);
+LV_IMG_DECLARE(pic_pong_12);
+LV_IMG_DECLARE(pic_pong_13);
+LV_IMG_DECLARE(pic_pong_14);
+LV_IMG_DECLARE(pic_pong_15);
+LV_IMG_DECLARE(pic_pong_16);
+LV_IMG_DECLARE(pic_pong_17);
+LV_IMG_DECLARE(pic_pong_18);
+LV_IMG_DECLARE(pic_pong_19);
+LV_IMG_DECLARE(pic_pong_20);
+LV_IMG_DECLARE(pic_pong_21);
+LV_IMG_DECLARE(pic_pong_22);
+LV_IMG_DECLARE(pic_pong_23);
+
+LV_IMG_DECLARE(pic_invaders_00);
+LV_IMG_DECLARE(pic_invaders_01);
+LV_IMG_DECLARE(pic_invaders_02);
+LV_IMG_DECLARE(pic_invaders_03);
+LV_IMG_DECLARE(pic_invaders_04);
+LV_IMG_DECLARE(pic_invaders_05);
+LV_IMG_DECLARE(pic_invaders_06);
+LV_IMG_DECLARE(pic_invaders_07);
+
+LV_IMG_DECLARE(pic_pacman_00);
+LV_IMG_DECLARE(pic_pacman_01);
+LV_IMG_DECLARE(pic_pacman_02);
+LV_IMG_DECLARE(pic_pacman_03);
+LV_IMG_DECLARE(pic_pacman_04);
+LV_IMG_DECLARE(pic_pacman_05);
+LV_IMG_DECLARE(pic_pacman_06);
+LV_IMG_DECLARE(pic_pacman_07);
+LV_IMG_DECLARE(pic_pacman_08);
+LV_IMG_DECLARE(pic_pacman_09);
+LV_IMG_DECLARE(pic_pacman_10);
+LV_IMG_DECLARE(pic_pacman_11);
+LV_IMG_DECLARE(pic_pacman_12);
+LV_IMG_DECLARE(pic_pacman_13);
+LV_IMG_DECLARE(pic_pacman_14);
+LV_IMG_DECLARE(pic_pacman_15);
+
+LV_IMG_DECLARE(pic_life_00);
+LV_IMG_DECLARE(pic_life_01);
+LV_IMG_DECLARE(pic_life_02);
+LV_IMG_DECLARE(pic_life_03);
+LV_IMG_DECLARE(pic_life_04);
+LV_IMG_DECLARE(pic_life_05);
+LV_IMG_DECLARE(pic_life_06);
+LV_IMG_DECLARE(pic_life_07);
+LV_IMG_DECLARE(pic_life_08);
+LV_IMG_DECLARE(pic_life_09);
+LV_IMG_DECLARE(pic_life_10);
+LV_IMG_DECLARE(pic_life_11);
+LV_IMG_DECLARE(pic_life_12);
+LV_IMG_DECLARE(pic_life_13);
+LV_IMG_DECLARE(pic_life_14);
+LV_IMG_DECLARE(pic_life_15);
+LV_IMG_DECLARE(pic_life_16);
+LV_IMG_DECLARE(pic_life_17);
+LV_IMG_DECLARE(pic_life_18);
+LV_IMG_DECLARE(pic_life_19);
+LV_IMG_DECLARE(pic_life_20);
+LV_IMG_DECLARE(pic_life_21);
+LV_IMG_DECLARE(pic_life_22);
+LV_IMG_DECLARE(pic_life_23);
+LV_IMG_DECLARE(pic_life_24);
+LV_IMG_DECLARE(pic_life_25);
+LV_IMG_DECLARE(pic_life_26);
+LV_IMG_DECLARE(pic_life_27);
+LV_IMG_DECLARE(pic_life_28);
+LV_IMG_DECLARE(pic_life_29);
+
+LV_IMG_DECLARE(pic_plasma_00);
+LV_IMG_DECLARE(pic_plasma_01);
+LV_IMG_DECLARE(pic_plasma_02);
+LV_IMG_DECLARE(pic_plasma_03);
+LV_IMG_DECLARE(pic_plasma_04);
+LV_IMG_DECLARE(pic_plasma_05);
+LV_IMG_DECLARE(pic_plasma_06);
+LV_IMG_DECLARE(pic_plasma_07);
+LV_IMG_DECLARE(pic_plasma_08);
+LV_IMG_DECLARE(pic_plasma_09);
+LV_IMG_DECLARE(pic_plasma_10);
+LV_IMG_DECLARE(pic_plasma_11);
+LV_IMG_DECLARE(pic_plasma_12);
+LV_IMG_DECLARE(pic_plasma_13);
+LV_IMG_DECLARE(pic_plasma_14);
+LV_IMG_DECLARE(pic_plasma_15);
+LV_IMG_DECLARE(pic_plasma_16);
+LV_IMG_DECLARE(pic_plasma_17);
+LV_IMG_DECLARE(pic_plasma_18);
+LV_IMG_DECLARE(pic_plasma_19);
+LV_IMG_DECLARE(pic_plasma_20);
+LV_IMG_DECLARE(pic_plasma_21);
+LV_IMG_DECLARE(pic_plasma_22);
+LV_IMG_DECLARE(pic_plasma_23);
+
+LV_IMG_DECLARE(pic_spiral_00);
+LV_IMG_DECLARE(pic_spiral_01);
+LV_IMG_DECLARE(pic_spiral_02);
+LV_IMG_DECLARE(pic_spiral_03);
+LV_IMG_DECLARE(pic_spiral_04);
+LV_IMG_DECLARE(pic_spiral_05);
+LV_IMG_DECLARE(pic_spiral_06);
+LV_IMG_DECLARE(pic_spiral_07);
+LV_IMG_DECLARE(pic_spiral_08);
+LV_IMG_DECLARE(pic_spiral_09);
+LV_IMG_DECLARE(pic_spiral_10);
+LV_IMG_DECLARE(pic_spiral_11);
+LV_IMG_DECLARE(pic_spiral_12);
+LV_IMG_DECLARE(pic_spiral_13);
+LV_IMG_DECLARE(pic_spiral_14);
+LV_IMG_DECLARE(pic_spiral_15);
+
+LV_IMG_DECLARE(pic_newton_00);
+LV_IMG_DECLARE(pic_newton_01);
+LV_IMG_DECLARE(pic_newton_02);
+LV_IMG_DECLARE(pic_newton_03);
+LV_IMG_DECLARE(pic_newton_04);
+LV_IMG_DECLARE(pic_newton_05);
+LV_IMG_DECLARE(pic_newton_06);
+LV_IMG_DECLARE(pic_newton_07);
+LV_IMG_DECLARE(pic_newton_08);
+LV_IMG_DECLARE(pic_newton_09);
+LV_IMG_DECLARE(pic_newton_10);
+LV_IMG_DECLARE(pic_newton_11);
+LV_IMG_DECLARE(pic_newton_12);
+LV_IMG_DECLARE(pic_newton_13);
+LV_IMG_DECLARE(pic_newton_14);
+LV_IMG_DECLARE(pic_newton_15);
+
+LV_IMG_DECLARE(pic_gears_00);
+LV_IMG_DECLARE(pic_gears_01);
+LV_IMG_DECLARE(pic_gears_02);
+LV_IMG_DECLARE(pic_gears_03);
+LV_IMG_DECLARE(pic_gears_04);
+LV_IMG_DECLARE(pic_gears_05);
+LV_IMG_DECLARE(pic_gears_06);
+LV_IMG_DECLARE(pic_gears_07);
+LV_IMG_DECLARE(pic_gears_08);
+LV_IMG_DECLARE(pic_gears_09);
+LV_IMG_DECLARE(pic_gears_10);
+LV_IMG_DECLARE(pic_gears_11);
+
+LV_IMG_DECLARE(pic_hourglass_00);
+LV_IMG_DECLARE(pic_hourglass_01);
+LV_IMG_DECLARE(pic_hourglass_02);
+LV_IMG_DECLARE(pic_hourglass_03);
+LV_IMG_DECLARE(pic_hourglass_04);
+LV_IMG_DECLARE(pic_hourglass_05);
+LV_IMG_DECLARE(pic_hourglass_06);
+LV_IMG_DECLARE(pic_hourglass_07);
+LV_IMG_DECLARE(pic_hourglass_08);
+LV_IMG_DECLARE(pic_hourglass_09);
+LV_IMG_DECLARE(pic_hourglass_10);
+LV_IMG_DECLARE(pic_hourglass_11);
+LV_IMG_DECLARE(pic_hourglass_12);
+LV_IMG_DECLARE(pic_hourglass_13);
+LV_IMG_DECLARE(pic_hourglass_14);
+LV_IMG_DECLARE(pic_hourglass_15);
+LV_IMG_DECLARE(pic_hourglass_16);
+LV_IMG_DECLARE(pic_hourglass_17);
+LV_IMG_DECLARE(pic_hourglass_18);
+LV_IMG_DECLARE(pic_hourglass_19);
+
+LV_IMG_DECLARE(pic_windmill_00);
+LV_IMG_DECLARE(pic_windmill_01);
+LV_IMG_DECLARE(pic_windmill_02);
+LV_IMG_DECLARE(pic_windmill_03);
+LV_IMG_DECLARE(pic_windmill_04);
+LV_IMG_DECLARE(pic_windmill_05);
+LV_IMG_DECLARE(pic_windmill_06);
+LV_IMG_DECLARE(pic_windmill_07);
+LV_IMG_DECLARE(pic_windmill_08);
+LV_IMG_DECLARE(pic_windmill_09);
+LV_IMG_DECLARE(pic_windmill_10);
+LV_IMG_DECLARE(pic_windmill_11);
+LV_IMG_DECLARE(pic_windmill_12);
+LV_IMG_DECLARE(pic_windmill_13);
+LV_IMG_DECLARE(pic_windmill_14);
+LV_IMG_DECLARE(pic_windmill_15);
+
+LV_IMG_DECLARE(pic_fireworks_00);
+LV_IMG_DECLARE(pic_fireworks_01);
+LV_IMG_DECLARE(pic_fireworks_02);
+LV_IMG_DECLARE(pic_fireworks_03);
+LV_IMG_DECLARE(pic_fireworks_04);
+LV_IMG_DECLARE(pic_fireworks_05);
+LV_IMG_DECLARE(pic_fireworks_06);
+LV_IMG_DECLARE(pic_fireworks_07);
+LV_IMG_DECLARE(pic_fireworks_08);
+LV_IMG_DECLARE(pic_fireworks_09);
+LV_IMG_DECLARE(pic_fireworks_10);
+LV_IMG_DECLARE(pic_fireworks_11);
+LV_IMG_DECLARE(pic_fireworks_12);
+LV_IMG_DECLARE(pic_fireworks_13);
+LV_IMG_DECLARE(pic_fireworks_14);
+LV_IMG_DECLARE(pic_fireworks_15);
+LV_IMG_DECLARE(pic_fireworks_16);
+LV_IMG_DECLARE(pic_fireworks_17);
+LV_IMG_DECLARE(pic_fireworks_18);
+LV_IMG_DECLARE(pic_fireworks_19);
+LV_IMG_DECLARE(pic_fireworks_20);
+LV_IMG_DECLARE(pic_fireworks_21);
+LV_IMG_DECLARE(pic_fireworks_22);
+LV_IMG_DECLARE(pic_fireworks_23);
+
+LV_IMG_DECLARE(pic_ufo_00);
+LV_IMG_DECLARE(pic_ufo_01);
+LV_IMG_DECLARE(pic_ufo_02);
+LV_IMG_DECLARE(pic_ufo_03);
+LV_IMG_DECLARE(pic_ufo_04);
+LV_IMG_DECLARE(pic_ufo_05);
+LV_IMG_DECLARE(pic_ufo_06);
+LV_IMG_DECLARE(pic_ufo_07);
+LV_IMG_DECLARE(pic_ufo_08);
+LV_IMG_DECLARE(pic_ufo_09);
+LV_IMG_DECLARE(pic_ufo_10);
+LV_IMG_DECLARE(pic_ufo_11);
+LV_IMG_DECLARE(pic_ufo_12);
+LV_IMG_DECLARE(pic_ufo_13);
+LV_IMG_DECLARE(pic_ufo_14);
+LV_IMG_DECLARE(pic_ufo_15);
+
+LV_IMG_DECLARE(pic_eye_00);
+LV_IMG_DECLARE(pic_eye_01);
+LV_IMG_DECLARE(pic_eye_02);
+LV_IMG_DECLARE(pic_eye_03);
+LV_IMG_DECLARE(pic_eye_04);
+LV_IMG_DECLARE(pic_eye_05);
+LV_IMG_DECLARE(pic_eye_06);
+LV_IMG_DECLARE(pic_eye_07);
+LV_IMG_DECLARE(pic_eye_08);
+LV_IMG_DECLARE(pic_eye_09);
+LV_IMG_DECLARE(pic_eye_10);
+LV_IMG_DECLARE(pic_eye_11);
+LV_IMG_DECLARE(pic_eye_12);
+LV_IMG_DECLARE(pic_eye_13);
+LV_IMG_DECLARE(pic_eye_14);
+LV_IMG_DECLARE(pic_eye_15);
+LV_IMG_DECLARE(pic_eye_16);
+LV_IMG_DECLARE(pic_eye_17);
+LV_IMG_DECLARE(pic_eye_18);
+LV_IMG_DECLARE(pic_eye_19);
+LV_IMG_DECLARE(pic_eye_20);
+LV_IMG_DECLARE(pic_eye_21);
+LV_IMG_DECLARE(pic_eye_22);
+LV_IMG_DECLARE(pic_eye_23);
+
+LV_IMG_DECLARE(pic_keywave_00);
+LV_IMG_DECLARE(pic_keywave_01);
+LV_IMG_DECLARE(pic_keywave_02);
+LV_IMG_DECLARE(pic_keywave_03);
+LV_IMG_DECLARE(pic_keywave_04);
+LV_IMG_DECLARE(pic_keywave_05);
+LV_IMG_DECLARE(pic_keywave_06);
+LV_IMG_DECLARE(pic_keywave_07);
+LV_IMG_DECLARE(pic_keywave_08);
+LV_IMG_DECLARE(pic_keywave_09);
+LV_IMG_DECLARE(pic_keywave_10);
+LV_IMG_DECLARE(pic_keywave_11);
+LV_IMG_DECLARE(pic_keywave_12);
+LV_IMG_DECLARE(pic_keywave_13);
+LV_IMG_DECLARE(pic_keywave_14);
+LV_IMG_DECLARE(pic_keywave_15);
+LV_IMG_DECLARE(pic_keywave_16);
+LV_IMG_DECLARE(pic_keywave_17);
+LV_IMG_DECLARE(pic_keywave_18);
+LV_IMG_DECLARE(pic_keywave_19);
+LV_IMG_DECLARE(pic_keywave_20);
+LV_IMG_DECLARE(pic_keywave_21);
+LV_IMG_DECLARE(pic_keywave_22);
+LV_IMG_DECLARE(pic_keywave_23);
+
+LV_IMG_DECLARE(pic_coffee);
+
+LV_IMG_DECLARE(pic_cactus);
+
+LV_IMG_DECLARE(pic_lighthouse);
+
+LV_IMG_DECLARE(pic_moon_cat);
+
+LV_IMG_DECLARE(pic_robot);
+
+LV_IMG_DECLARE(pic_planet);
+
+LV_IMG_DECLARE(pic_castle);
+
+LV_IMG_DECLARE(pic_tree);
+
+LV_IMG_DECLARE(pic_skull);
+
+LV_IMG_DECLARE(pic_sword);
+
+LV_IMG_DECLARE(pic_key);
+
+LV_IMG_DECLARE(pic_antenna);
+
+LV_IMG_DECLARE(pic_potion);
+
+LV_IMG_DECLARE(pic_sailboat);
+
+LV_IMG_DECLARE(pic_compass);
+
+LV_IMG_DECLARE(pic_crown);
+
+LV_IMG_DECLARE(pic_cassette);
+
+LV_IMG_DECLARE(pic_floppy);
+
+LV_IMG_DECLARE(pic_phases);
+
+LV_IMG_DECLARE(pic_mushroom);
+
 static const lv_img_dsc_t *const pic_equalizer_imgs[] = {
     &pic_equalizer_00, &pic_equalizer_01, &pic_equalizer_02, &pic_equalizer_03,
     &pic_equalizer_04, &pic_equalizer_05, &pic_equalizer_06, &pic_equalizer_07,
@@ -348,6 +786,186 @@ static const lv_img_dsc_t *const pic_pulsar_imgs[] = {
 static const lv_img_dsc_t *const pic_rocket_imgs[] = {
     &pic_rocket,
 };
+static const lv_img_dsc_t *const pic_waterfall_imgs[] = {
+    &pic_waterfall_00, &pic_waterfall_01, &pic_waterfall_02, &pic_waterfall_03,
+    &pic_waterfall_04, &pic_waterfall_05, &pic_waterfall_06, &pic_waterfall_07,
+    &pic_waterfall_08, &pic_waterfall_09, &pic_waterfall_10, &pic_waterfall_11,
+    &pic_waterfall_12, &pic_waterfall_13, &pic_waterfall_14, &pic_waterfall_15,
+};
+static const lv_img_dsc_t *const pic_lava_imgs[] = {
+    &pic_lava_00, &pic_lava_01, &pic_lava_02, &pic_lava_03, &pic_lava_04, &pic_lava_05,
+    &pic_lava_06, &pic_lava_07, &pic_lava_08, &pic_lava_09, &pic_lava_10, &pic_lava_11,
+    &pic_lava_12, &pic_lava_13, &pic_lava_14, &pic_lava_15,
+};
+static const lv_img_dsc_t *const pic_lightning_imgs[] = {
+    &pic_lightning_00, &pic_lightning_01, &pic_lightning_02, &pic_lightning_03,
+    &pic_lightning_04, &pic_lightning_05, &pic_lightning_06, &pic_lightning_07,
+    &pic_lightning_08, &pic_lightning_09, &pic_lightning_10, &pic_lightning_11,
+    &pic_lightning_12, &pic_lightning_13, &pic_lightning_14, &pic_lightning_15,
+};
+static const lv_img_dsc_t *const pic_snow_imgs[] = {
+    &pic_snow_00, &pic_snow_01, &pic_snow_02, &pic_snow_03, &pic_snow_04, &pic_snow_05,
+    &pic_snow_06, &pic_snow_07, &pic_snow_08, &pic_snow_09, &pic_snow_10, &pic_snow_11,
+    &pic_snow_12, &pic_snow_13, &pic_snow_14, &pic_snow_15, &pic_snow_16, &pic_snow_17,
+    &pic_snow_18, &pic_snow_19, &pic_snow_20, &pic_snow_21, &pic_snow_22, &pic_snow_23,
+};
+static const lv_img_dsc_t *const pic_jellyfish_imgs[] = {
+    &pic_jellyfish_00, &pic_jellyfish_01, &pic_jellyfish_02, &pic_jellyfish_03,
+    &pic_jellyfish_04, &pic_jellyfish_05, &pic_jellyfish_06, &pic_jellyfish_07,
+    &pic_jellyfish_08, &pic_jellyfish_09, &pic_jellyfish_10, &pic_jellyfish_11,
+    &pic_jellyfish_12, &pic_jellyfish_13, &pic_jellyfish_14, &pic_jellyfish_15,
+};
+static const lv_img_dsc_t *const pic_tetris_imgs[] = {
+    &pic_tetris_00, &pic_tetris_01, &pic_tetris_02, &pic_tetris_03, &pic_tetris_04,
+    &pic_tetris_05, &pic_tetris_06, &pic_tetris_07, &pic_tetris_08, &pic_tetris_09,
+    &pic_tetris_10, &pic_tetris_11, &pic_tetris_12, &pic_tetris_13, &pic_tetris_14,
+    &pic_tetris_15, &pic_tetris_16, &pic_tetris_17, &pic_tetris_18, &pic_tetris_19,
+};
+static const lv_img_dsc_t *const pic_pong_imgs[] = {
+    &pic_pong_00, &pic_pong_01, &pic_pong_02, &pic_pong_03, &pic_pong_04, &pic_pong_05,
+    &pic_pong_06, &pic_pong_07, &pic_pong_08, &pic_pong_09, &pic_pong_10, &pic_pong_11,
+    &pic_pong_12, &pic_pong_13, &pic_pong_14, &pic_pong_15, &pic_pong_16, &pic_pong_17,
+    &pic_pong_18, &pic_pong_19, &pic_pong_20, &pic_pong_21, &pic_pong_22, &pic_pong_23,
+};
+static const lv_img_dsc_t *const pic_invaders_imgs[] = {
+    &pic_invaders_00, &pic_invaders_01, &pic_invaders_02, &pic_invaders_03, &pic_invaders_04,
+    &pic_invaders_05, &pic_invaders_06, &pic_invaders_07,
+};
+static const lv_img_dsc_t *const pic_pacman_imgs[] = {
+    &pic_pacman_00, &pic_pacman_01, &pic_pacman_02, &pic_pacman_03, &pic_pacman_04,
+    &pic_pacman_05, &pic_pacman_06, &pic_pacman_07, &pic_pacman_08, &pic_pacman_09,
+    &pic_pacman_10, &pic_pacman_11, &pic_pacman_12, &pic_pacman_13, &pic_pacman_14,
+    &pic_pacman_15,
+};
+static const lv_img_dsc_t *const pic_life_imgs[] = {
+    &pic_life_00, &pic_life_01, &pic_life_02, &pic_life_03, &pic_life_04, &pic_life_05,
+    &pic_life_06, &pic_life_07, &pic_life_08, &pic_life_09, &pic_life_10, &pic_life_11,
+    &pic_life_12, &pic_life_13, &pic_life_14, &pic_life_15, &pic_life_16, &pic_life_17,
+    &pic_life_18, &pic_life_19, &pic_life_20, &pic_life_21, &pic_life_22, &pic_life_23,
+    &pic_life_24, &pic_life_25, &pic_life_26, &pic_life_27, &pic_life_28, &pic_life_29,
+};
+static const lv_img_dsc_t *const pic_plasma_imgs[] = {
+    &pic_plasma_00, &pic_plasma_01, &pic_plasma_02, &pic_plasma_03, &pic_plasma_04,
+    &pic_plasma_05, &pic_plasma_06, &pic_plasma_07, &pic_plasma_08, &pic_plasma_09,
+    &pic_plasma_10, &pic_plasma_11, &pic_plasma_12, &pic_plasma_13, &pic_plasma_14,
+    &pic_plasma_15, &pic_plasma_16, &pic_plasma_17, &pic_plasma_18, &pic_plasma_19,
+    &pic_plasma_20, &pic_plasma_21, &pic_plasma_22, &pic_plasma_23,
+};
+static const lv_img_dsc_t *const pic_spiral_imgs[] = {
+    &pic_spiral_00, &pic_spiral_01, &pic_spiral_02, &pic_spiral_03, &pic_spiral_04,
+    &pic_spiral_05, &pic_spiral_06, &pic_spiral_07, &pic_spiral_08, &pic_spiral_09,
+    &pic_spiral_10, &pic_spiral_11, &pic_spiral_12, &pic_spiral_13, &pic_spiral_14,
+    &pic_spiral_15,
+};
+static const lv_img_dsc_t *const pic_newton_imgs[] = {
+    &pic_newton_00, &pic_newton_01, &pic_newton_02, &pic_newton_03, &pic_newton_04,
+    &pic_newton_05, &pic_newton_06, &pic_newton_07, &pic_newton_08, &pic_newton_09,
+    &pic_newton_10, &pic_newton_11, &pic_newton_12, &pic_newton_13, &pic_newton_14,
+    &pic_newton_15,
+};
+static const lv_img_dsc_t *const pic_gears_imgs[] = {
+    &pic_gears_00, &pic_gears_01, &pic_gears_02, &pic_gears_03, &pic_gears_04, &pic_gears_05,
+    &pic_gears_06, &pic_gears_07, &pic_gears_08, &pic_gears_09, &pic_gears_10, &pic_gears_11,
+};
+static const lv_img_dsc_t *const pic_hourglass_imgs[] = {
+    &pic_hourglass_00, &pic_hourglass_01, &pic_hourglass_02, &pic_hourglass_03,
+    &pic_hourglass_04, &pic_hourglass_05, &pic_hourglass_06, &pic_hourglass_07,
+    &pic_hourglass_08, &pic_hourglass_09, &pic_hourglass_10, &pic_hourglass_11,
+    &pic_hourglass_12, &pic_hourglass_13, &pic_hourglass_14, &pic_hourglass_15,
+    &pic_hourglass_16, &pic_hourglass_17, &pic_hourglass_18, &pic_hourglass_19,
+};
+static const lv_img_dsc_t *const pic_windmill_imgs[] = {
+    &pic_windmill_00, &pic_windmill_01, &pic_windmill_02, &pic_windmill_03, &pic_windmill_04,
+    &pic_windmill_05, &pic_windmill_06, &pic_windmill_07, &pic_windmill_08, &pic_windmill_09,
+    &pic_windmill_10, &pic_windmill_11, &pic_windmill_12, &pic_windmill_13, &pic_windmill_14,
+    &pic_windmill_15,
+};
+static const lv_img_dsc_t *const pic_fireworks_imgs[] = {
+    &pic_fireworks_00, &pic_fireworks_01, &pic_fireworks_02, &pic_fireworks_03,
+    &pic_fireworks_04, &pic_fireworks_05, &pic_fireworks_06, &pic_fireworks_07,
+    &pic_fireworks_08, &pic_fireworks_09, &pic_fireworks_10, &pic_fireworks_11,
+    &pic_fireworks_12, &pic_fireworks_13, &pic_fireworks_14, &pic_fireworks_15,
+    &pic_fireworks_16, &pic_fireworks_17, &pic_fireworks_18, &pic_fireworks_19,
+    &pic_fireworks_20, &pic_fireworks_21, &pic_fireworks_22, &pic_fireworks_23,
+};
+static const lv_img_dsc_t *const pic_ufo_imgs[] = {
+    &pic_ufo_00, &pic_ufo_01, &pic_ufo_02, &pic_ufo_03, &pic_ufo_04, &pic_ufo_05, &pic_ufo_06,
+    &pic_ufo_07, &pic_ufo_08, &pic_ufo_09, &pic_ufo_10, &pic_ufo_11, &pic_ufo_12, &pic_ufo_13,
+    &pic_ufo_14, &pic_ufo_15,
+};
+static const lv_img_dsc_t *const pic_eye_imgs[] = {
+    &pic_eye_00, &pic_eye_01, &pic_eye_02, &pic_eye_03, &pic_eye_04, &pic_eye_05, &pic_eye_06,
+    &pic_eye_07, &pic_eye_08, &pic_eye_09, &pic_eye_10, &pic_eye_11, &pic_eye_12, &pic_eye_13,
+    &pic_eye_14, &pic_eye_15, &pic_eye_16, &pic_eye_17, &pic_eye_18, &pic_eye_19, &pic_eye_20,
+    &pic_eye_21, &pic_eye_22, &pic_eye_23,
+};
+static const lv_img_dsc_t *const pic_keywave_imgs[] = {
+    &pic_keywave_00, &pic_keywave_01, &pic_keywave_02, &pic_keywave_03, &pic_keywave_04,
+    &pic_keywave_05, &pic_keywave_06, &pic_keywave_07, &pic_keywave_08, &pic_keywave_09,
+    &pic_keywave_10, &pic_keywave_11, &pic_keywave_12, &pic_keywave_13, &pic_keywave_14,
+    &pic_keywave_15, &pic_keywave_16, &pic_keywave_17, &pic_keywave_18, &pic_keywave_19,
+    &pic_keywave_20, &pic_keywave_21, &pic_keywave_22, &pic_keywave_23,
+};
+static const lv_img_dsc_t *const pic_coffee_imgs[] = {
+    &pic_coffee,
+};
+static const lv_img_dsc_t *const pic_cactus_imgs[] = {
+    &pic_cactus,
+};
+static const lv_img_dsc_t *const pic_lighthouse_imgs[] = {
+    &pic_lighthouse,
+};
+static const lv_img_dsc_t *const pic_moon_cat_imgs[] = {
+    &pic_moon_cat,
+};
+static const lv_img_dsc_t *const pic_robot_imgs[] = {
+    &pic_robot,
+};
+static const lv_img_dsc_t *const pic_planet_imgs[] = {
+    &pic_planet,
+};
+static const lv_img_dsc_t *const pic_castle_imgs[] = {
+    &pic_castle,
+};
+static const lv_img_dsc_t *const pic_tree_imgs[] = {
+    &pic_tree,
+};
+static const lv_img_dsc_t *const pic_skull_imgs[] = {
+    &pic_skull,
+};
+static const lv_img_dsc_t *const pic_sword_imgs[] = {
+    &pic_sword,
+};
+static const lv_img_dsc_t *const pic_key_imgs[] = {
+    &pic_key,
+};
+static const lv_img_dsc_t *const pic_antenna_imgs[] = {
+    &pic_antenna,
+};
+static const lv_img_dsc_t *const pic_potion_imgs[] = {
+    &pic_potion,
+};
+static const lv_img_dsc_t *const pic_sailboat_imgs[] = {
+    &pic_sailboat,
+};
+static const lv_img_dsc_t *const pic_compass_imgs[] = {
+    &pic_compass,
+};
+static const lv_img_dsc_t *const pic_crown_imgs[] = {
+    &pic_crown,
+};
+static const lv_img_dsc_t *const pic_cassette_imgs[] = {
+    &pic_cassette,
+};
+static const lv_img_dsc_t *const pic_floppy_imgs[] = {
+    &pic_floppy,
+};
+static const lv_img_dsc_t *const pic_phases_imgs[] = {
+    &pic_phases,
+};
+static const lv_img_dsc_t *const pic_mushroom_imgs[] = {
+    &pic_mushroom,
+};
 
 // X(KIND, name, cycle in ms): KIND is the end of the name of KP_OLED_ANIM_<KIND> of
 // zmk-rgb-matrix, in the order of the numbers of the kinds
@@ -370,6 +988,46 @@ static const lv_img_dsc_t *const pic_rocket_imgs[] = {
     X(HEART, pic_heart, 0) \
     X(KEYBOARD, pic_keyboard, 0) \
     X(PULSAR, pic_pulsar, 0) \
-    X(ROCKET, pic_rocket, 0)
+    X(ROCKET, pic_rocket, 0) \
+    X(WATERFALL, pic_waterfall, 1600) \
+    X(LAVA, pic_lava, 3200) \
+    X(LIGHTNING, pic_lightning, 1600) \
+    X(SNOW, pic_snow, 2400) \
+    X(JELLYFISH, pic_jellyfish, 1600) \
+    X(TETRIS, pic_tetris, 2000) \
+    X(PONG, pic_pong, 1500) \
+    X(INVADERS, pic_invaders, 1600) \
+    X(PACMAN, pic_pacman, 1600) \
+    X(LIFE, pic_life, 3000) \
+    X(PLASMA, pic_plasma, 2400) \
+    X(SPIRAL, pic_spiral, 1600) \
+    X(NEWTON, pic_newton, 1600) \
+    X(GEARS, pic_gears, 1000) \
+    X(HOURGLASS, pic_hourglass, 2000) \
+    X(WINDMILL, pic_windmill, 1600) \
+    X(FIREWORKS, pic_fireworks, 2400) \
+    X(UFO, pic_ufo, 1600) \
+    X(EYE, pic_eye, 2400) \
+    X(KEYWAVE, pic_keywave, 2400) \
+    X(COFFEE, pic_coffee, 0) \
+    X(CACTUS, pic_cactus, 0) \
+    X(LIGHTHOUSE, pic_lighthouse, 0) \
+    X(MOON_CAT, pic_moon_cat, 0) \
+    X(ROBOT, pic_robot, 0) \
+    X(PLANET, pic_planet, 0) \
+    X(CASTLE, pic_castle, 0) \
+    X(TREE, pic_tree, 0) \
+    X(SKULL, pic_skull, 0) \
+    X(SWORD, pic_sword, 0) \
+    X(KEY, pic_key, 0) \
+    X(ANTENNA, pic_antenna, 0) \
+    X(POTION, pic_potion, 0) \
+    X(SAILBOAT, pic_sailboat, 0) \
+    X(COMPASS, pic_compass, 0) \
+    X(CROWN, pic_crown, 0) \
+    X(CASSETTE, pic_cassette, 0) \
+    X(FLOPPY, pic_floppy, 0) \
+    X(PHASES, pic_phases, 0) \
+    X(MUSHROOM, pic_mushroom, 0)
 
 #endif /* NICE_OLED_PICTURES_H */

@@ -27,6 +27,18 @@ sys.path.insert(0, str(ROOT / "scripts" / "pictures"))
 
 import make_pictures as mp  # noqa: E402
 
+# The order of the pictures is the number of the kind that the keyboard saves in its memory, from
+# FIRST_KIND on. This is what exists: it only grows at the end, a name is never moved or removed
+# (kinds 7 to 25 are the first batch, 26 to 65 the second)
+KINDS = """
+equalizer radar heartbeat rain cube atom helix warp sonar bounce flame
+mountains skyline circuit alien heart keyboard pulsar rocket
+waterfall lava lightning snow jellyfish tetris pong invaders pacman life plasma spiral newton
+gears hourglass windmill fireworks ufo eye keywave
+coffee cactus lighthouse moon_cat robot planet castle tree skull sword key antenna potion
+sailboat compass crown cassette floppy phases mushroom
+""".split()
+
 STUB = """\
 #ifndef LVGL_STUB_H
 #define LVGL_STUB_H
@@ -147,6 +159,18 @@ class GeneratedPictures(unittest.TestCase):
             for i in range(len(frames)):
                 nxt = frames[(i + 1) % len(frames)]
                 self.assertFalse(np.array_equal(frames[i], nxt), f"{name}: frame {i} and the next are equal")
+
+    def test_the_kinds_that_exist_never_change_and_a_new_picture_goes_at_the_end(self):
+        names = [entry[0] for entry, _frames in self.all_frames]
+        self.assertEqual(names[: len(KINDS)], KINDS)
+        self.assertEqual(mp.FIRST_KIND, 7)
+        self.assertEqual(self.manifest["pictures"][names.index("flame")]["kind"], 17)
+        self.assertEqual(self.manifest["pictures"][names.index("rocket")]["kind"], 25)
+        self.assertEqual(self.manifest["pictures"][names.index("waterfall")]["kind"], 26)
+        self.assertEqual(self.manifest["pictures"][names.index("mushroom")]["kind"], 65)
+        self.assertEqual(self.manifest["kind_count"], 66)
+        for forbidden in mp.NICE_OLED_KINDS:
+            self.assertNotIn(forbidden, names)
 
     def test_the_kinds_are_numbered_in_order_after_the_ones_of_nice_oled(self):
         kinds = [p["kind"] for p in self.manifest["pictures"]]

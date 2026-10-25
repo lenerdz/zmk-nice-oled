@@ -278,13 +278,13 @@ It needs the OLED (the `nice_oled` shield with the status widget) and `CONFIG_KE
 | left | WPM number | `CONFIG_NICE_OLED_WIDGET_WPM_LABEL_CUSTOM_X` and `_Y` | |
 | left | WPM graph | x -1 and y 95, the grid under it (it has no option) | the points of the graph |
 
-**Animations and images.** With the option on, every animation and image of the peripheral is built in, whatever `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_*` says, so ZMK Studio can switch between them while the keyboard runs; the options only choose the one shown at first. There are 26 of them: the 7 of the original shield (crystal, cat, head, spaceman, pokemon, vim and vip_marcos) and the 19 of [New Pictures of the Right Screen](#new-pictures-of-the-right-screen). A cycle takes the time that belongs to each animation (960 ms for crystal and cat, 4800 ms for head and spaceman, 10000 ms for pokemon, and the one of the table of the new pictures for those), except for the one the build chose, which keeps `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_MS`; ZMK Studio can set another time, from 100 to 60000 ms. With `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_SMART_BATTERY` the animation is not part of the layout. The picture can also be turned, cut to a piece and mixed with the widgets: see [Picture on the Canvas](#picture-on-the-canvas-turn-crop-and-mix).
+**Animations and images.** With the option on, every animation and image of the peripheral is built in, whatever `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_*` says, so ZMK Studio can switch between them while the keyboard runs; the options only choose the one shown at first. There are 66 of them: the 7 of the original shield (crystal, cat, head, spaceman, pokemon, vim and vip_marcos) and the 59 of [New Pictures of the Right Screen](#new-pictures-of-the-right-screen) (19 that came first, and 40 more in a second batch). A cycle takes the time that belongs to each animation (960 ms for crystal and cat, 4800 ms for head and spaceman, 10000 ms for pokemon, and the one of the table of the new pictures for those), except for the one the build chose, which keeps `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_MS`; ZMK Studio can set another time, from 100 to 60000 ms. With `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_SMART_BATTERY` the animation is not part of the layout. The picture can also be turned, cut to a piece and mixed with the widgets: see [Picture on the Canvas](#picture-on-the-canvas-turn-crop-and-mix).
 
 **Cost.** Measured with the Corne of [lenerdz/corne-zmk](https://github.com/lenerdz/corne-zmk) (the build of the revisions of its `config/west.yml`), against the same build without the layout: the right half grows 140,036 bytes of flash (every animation and image is built in: 64,064 bytes of them are the pictures that `make_pictures.py` draws, and the rest is the code that puts the picture on the canvas) and 616 bytes of RAM, and the left half 1,512 bytes of flash and 240 bytes of RAM.
 
 **Not covered.** The bongo cat, the luna dog, the responsive bongo cat, the HID and modifier indicators, the Raw HID widgets, the sleep art and the smart battery animation are not part of the layout: they are drawn where the build says.
 
-**Status.** It compiles for both halves in the CI of [lenerdz/corne-zmk](https://github.com/lenerdz/corne-zmk), and the code that puts the picture on the canvas and the files that `make_pictures.py` writes are tested on a computer (see below). The first version of the layout (the widgets moving and hiding, the animation switching) was used on a real Corne, and its owner reported that it worked, without detail about each operation. What came after it has not been tried on a real keyboard yet: the picture on the canvas (a widget over it, the turn, the crop and the mix), the 19 new pictures, the frames that now come from a work item that draws the screen again at every frame (how often it does, and what that costs in battery, is not measured), and the redraw of the peripheral when these settings reach it.
+**Status.** It compiles for both halves in the CI of [lenerdz/corne-zmk](https://github.com/lenerdz/corne-zmk), and the code that puts the picture on the canvas and the files that `make_pictures.py` writes are tested on a computer (see below). The first version of the layout (the widgets moving and hiding, the animation switching) was used on a real Corne, and its owner reported that it worked, without detail about each operation. What came after it has not been tried on a real keyboard yet: the picture on the canvas (a widget over it, the turn, the crop and the mix), the 59 new pictures, the frames that now come from a work item that draws the screen again at every frame (how often it does, and what that costs in battery, is not measured), and the redraw of the peripheral when these settings reach it.
 
 ### Picture on the Canvas: Turn, Crop and Mix
 
@@ -305,7 +305,7 @@ The unlit pixels of a picture never touch the canvas. The pictures are stored tu
 
 ### New Pictures of the Right Screen
 
-The kinds 7 to 25 are drawn by `scripts/pictures/make_pictures.py`, upright and 32 pixels wide (the width of the panel), and written as LVGL files of 1 bit per pixel like the other assets (`assets/pictures/<name>.c`), with the list `widgets/pictures.h` (the table `PICTURES(X)` that `widgets/animation.c` turns into its table of kinds) and the manifest `assets/pictures/pictures.json` (the kind, the size, the frames and the cycle of each one, which the ZMK Studio app reads to make its sprites).
+The kinds 7 to 65 are drawn by `scripts/pictures/make_pictures.py` in two batches: the first (kinds 7 to 25, in `animations.py` and `stills.py`: 11 animations, then 8 still images) and the second (kinds 26 to 65, in `animations2.py` and `stills2.py`: 20 animations, then 20 still images). They are upright and 32 pixels wide (the width of the panel), and written as LVGL files of 1 bit per pixel like the other assets (`assets/pictures/<name>.c`), with the list `widgets/pictures.h` (the table `PICTURES(X)` that `widgets/animation.c` turns into its table of kinds) and the manifest `assets/pictures/pictures.json` (the kind, the size, the frames and the cycle of each one, which the ZMK Studio app reads to make its sprites).
 
 | Kind | Picture | Size | Frames | A cycle | What it is |
 |---|---|---|---|---|---|
@@ -328,6 +328,46 @@ The kinds 7 to 25 are drawn by `scripts/pictures/make_pictures.py`, upright and 
 | 23 | `keyboard` | 32 x 64 | still | none | The two halves of a Corne, as seen from above |
 | 24 | `pulsar` | 32 x 128 | still | none | Lines of a signal, one above the other, that hide the ones behind them, like the cover of an old record |
 | 25 | `rocket` | 32 x 64 | still | none | A rocket taking off |
+| 26 | `waterfall` | 32 x 128 | 16 | 1600 ms | Water that falls over a ledge between two cliffs, with mist and a pool that ripples |
+| 27 | `lava` | 32 x 128 | 16 | 3200 ms | A lava lamp: blobs of wax that rise, stretch and sink again in a glass with a base |
+| 28 | `lightning` | 32 x 64 | 16 | 1600 ms | A storm: a cloud, slanting rain, and two bolts that flash one after the other |
+| 29 | `snow` | 32 x 64 | 24 | 2400 ms | Snow that falls past a pine tree on a hill, under a moon |
+| 30 | `jellyfish` | 32 x 64 | 16 | 1600 ms | A jellyfish that pulses, with tentacles that wave and a few specks that float up |
+| 31 | `tetris` | 32 x 64 | 20 | 2000 ms | Pieces that fall down a board of eight columns, turning on the way, like the screen saver of a falling blocks game (they pass each other and leave at the bottom) |
+| 32 | `pong` | 32 x 64 | 24 | 1500 ms | A game of pong played from top to bottom: two paddles that follow the ball, the net and the score |
+| 33 | `invaders` | 32 x 64 | 8 | 1600 ms | A formation of aliens that marches from side to side, a cannon that shoots one down and a saucer that crosses the top |
+| 34 | `pacman` | 32 x 32 | 16 | 1600 ms | A disc with a mouth eats a row of dots chasing a scared ghost, and a ghost chases it on the next row |
+| 35 | `life` | 32 x 64 | 30 | 3000 ms | Conway's Game of Life on a small field: a pulsar, a pentadecathlon, a toad, a beacon, blinkers and some still lifes; everything is back where it started after 30 generations, which is the loop |
+| 36 | `plasma` | 32 x 64 | 24 | 2400 ms | The plasma of the old demos: waves that add up, drawn with an ordered dither |
+| 37 | `spiral` | 32 x 32 | 16 | 1600 ms | A spiral with three arms that turns, inside a ring |
+| 38 | `newton` | 32 x 32 | 16 | 1600 ms | Newton's cradle: the ball on one side swings in, the one on the other side swings out and back, and the first answers |
+| 39 | `gears` | 32 x 32 | 12 | 1000 ms | Two gears that mesh and turn |
+| 40 | `hourglass` | 32 x 64 | 20 | 2000 ms | An hourglass: the sand runs down through the neck and, at the end of every cycle, the glass turns over end to end |
+| 41 | `windmill` | 32 x 64 | 16 | 1600 ms | A windmill whose sails turn under clouds that drift across and come back around |
+| 42 | `fireworks` | 32 x 64 | 24 | 2400 ms | Rockets that rise and burst into sparks that fall; three bursts take turns, so there is always something going off |
+| 43 | `ufo` | 32 x 64 | 16 | 1600 ms | A flying saucer that hovers over a field and lifts a cow in its beam, then puts it back |
+| 44 | `eye` | 32 x 32 | 24 | 2400 ms | An eye that looks around in a figure of eight and blinks once per cycle |
+| 45 | `keywave` | 32 x 64 | 24 | 2400 ms | A wave of key presses that sweeps across a field of keycaps |
+| 46 | `coffee` | 32 x 64 | still | none | A cup of coffee that says ZMK, with steam, on its saucer |
+| 47 | `cactus` | 32 x 64 | still | none | A saguaro cactus in the desert, with the sun low over the dunes |
+| 48 | `lighthouse` | 32 x 128 | still | none | A lighthouse on its rock, sweeping the night with its beam |
+| 49 | `moon_cat` | 32 x 64 | still | none | A cat sitting on a wall in front of the full moon, seen from behind |
+| 50 | `robot` | 32 x 64 | still | none | A friendly robot with an antenna |
+| 51 | `planet` | 32 x 64 | still | none | A ringed planet with a small moon, among the stars |
+| 52 | `castle` | 32 x 64 | still | none | A castle with two towers and a keep, under the moon |
+| 53 | `tree` | 32 x 128 | still | none | A big tree on a hill, with apples, a hollow and a pair of birds |
+| 54 | `skull` | 32 x 64 | still | none | A skull with crossed bones |
+| 55 | `sword` | 32 x 128 | still | none | A long sword with a gem in the guard |
+| 56 | `key` | 32 x 64 | still | none | An old key with a three-lobed bow |
+| 57 | `antenna` | 32 x 128 | still | none | A radio tower sending its signal out |
+| 58 | `potion` | 32 x 64 | still | none | A round flask with a bubbling potion and a heart |
+| 59 | `sailboat` | 32 x 64 | still | none | A sailboat on the waves, with the sun and a gull |
+| 60 | `compass` | 32 x 32 | still | none | A compass rose inside two rings |
+| 61 | `crown` | 32 x 32 | still | none | A crown with five points and jewels |
+| 62 | `cassette` | 32 x 32 | still | none | An audio cassette, with a label that says MIX and its two reels |
+| 63 | `floppy` | 32 x 32 | still | none | A floppy disk, with its metal shutter and a label that says ZMK |
+| 64 | `phases` | 32 x 128 | still | none | The eight phases of the moon, one above the other |
+| 65 | `mushroom` | 32 x 32 | still | none | A mushroom with a spotted cap and a face, as in the old games |
 
 | Command | What it does |
 |---|---|
@@ -337,7 +377,7 @@ The kinds 7 to 25 are drawn by `scripts/pictures/make_pictures.py`, upright and 
 | `python scripts/pictures/make_pictures.py --check` | fails when the files are not what `--write` makes |
 | `python scripts/pictures/make_pictures.py --check --module <zmk-rgb-matrix>` | also checks that the enum of the module has the pictures |
 
-The number of a kind is what the keyboard keeps in its flash, so a new picture is **only added at the end**: add its drawing in `scripts/pictures/animations.py` or `stills.py`, put the same name with the same number in `enum kp_oled_anim_kind` of the module (`include/zmk/display_settings.h`), raise `KP_OLED_ANIM_KIND_COUNT`, run `--write`, and regenerate the sprites of the app (`scripts/oled-assets/convert.py` of [lenerdz/zmk-studio](https://github.com/lenerdz/zmk-studio), which reads `pictures.json`). `python tests/picture/test_generated.py` checks that the files are what the script makes, that a C compiler reads in them the same bytes that a parser of the text does (and that they turn back into the pictures that were drawn), and that the list is consistent. The look of the drawings was checked on sheets of PNG files, not on a real screen.
+The number of a kind is what the keyboard keeps in its flash, so a new picture is **only added at the end**, in a new batch: write its drawing in a new pair of files (like `animations2.py` and `stills2.py`), list the pair in `BATCHES` of `make_pictures.py` (the animations of a batch come first, then its still images; a name cannot repeat, nor be one of the original kinds), put the same name with the same number in `enum kp_oled_anim_kind` of the module (`include/zmk/display_settings.h`), raise `KP_OLED_ANIM_KIND_COUNT`, run `--write`, and regenerate the sprites of the app (`scripts/oled-assets/convert.py` of [lenerdz/zmk-studio](https://github.com/lenerdz/zmk-studio), which reads `pictures.json`). `python tests/picture/test_generated.py` checks that the files are what the script makes, that a C compiler reads in them the same bytes that a parser of the text does (and that they turn back into the pictures that were drawn), that the list is consistent, and that every kind that exists keeps its name and its number. The look of the drawings was checked on sheets of PNG files, not on a real screen.
 
 ## Central Specific
 

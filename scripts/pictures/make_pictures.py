@@ -24,10 +24,15 @@ The pictures are drawn upright, as the screen is looked at, and 32 pixels wide (
 pictures of the right screen, because the canvas of the widgets is turned for the panel after it
 is drawn: widgets/picture.c puts them on the canvas after that, and turns them back.
 
-The kinds are numbered from FIRST_KIND, in the order of PICTURES below. The number is what the
-keyboard saves in its memory: ONLY ADD pictures at the end, never reorder or remove, and add the
-same name to enum kp_oled_anim_kind (include/zmk/display_settings.h of zmk-rgb-matrix) with the
-same number, and raise KP_OLED_ANIM_KIND_COUNT.
+The kinds are numbered from FIRST_KIND, in the order of PICTURES below: the pictures of each batch
+of BATCHES (its animations, then its stills), the batches one after the other. The number is what
+the keyboard saves in its memory: ONLY ADD pictures at the end (a new batch, with its own
+animations2-like and stills2-like files), never reorder or remove, and add the same name to
+enum kp_oled_anim_kind (include/zmk/display_settings.h of zmk-rgb-matrix) with the same number,
+and raise KP_OLED_ANIM_KIND_COUNT. The first batch (animations.py, stills.py) is the kinds 7 to
+25, the second (animations2.py, stills2.py) the kinds 26 to 65. A name cannot repeat, and it
+cannot be one of the kinds of zmk-nice-oled either (crystal, cat, head, spaceman, pokemon, vim,
+vip_marcos), because the enum is made of the names.
 
 Needs Python 3 and numpy; --preview also needs Pillow. The drawing does not use random numbers
 from numpy, so the pictures do not change with its version.
@@ -45,7 +50,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
 import animations  # noqa: E402
+import animations2  # noqa: E402
 import stills  # noqa: E402
+import stills2  # noqa: E402
 from pixels import WIDTH  # noqa: E402
 
 SHIELD = os.path.normpath(os.path.join(HERE, "..", "..", "boards", "shields", "nice_oled"))
@@ -57,12 +64,32 @@ MANIFEST = os.path.join(ASSETS, "pictures.json")
 # up to KP_OLED_ANIM_VIP_MARCOS 6)
 FIRST_KIND = 7
 
-# The order is the number of the kind. Animations are (function, milliseconds of one cycle).
+# The kinds that zmk-nice-oled itself has (KP_OLED_ANIM_CRYSTAL 0 to KP_OLED_ANIM_VIP_MARCOS 6):
+# a picture cannot take one of these names
+NICE_OLED_KINDS = ("crystal", "cat", "head", "spaceman", "pokemon", "vim", "vip_marcos")
+
+# Batches of pictures, in the order of their kinds; a new batch goes at the end. Each one is the
+# table of its animations, (function, milliseconds of one cycle) by name, and the one of its
+# stills, a function by name.
+BATCHES = [
+    (animations.ANIMATIONS, stills.STILLS),  # the kinds 7 to 25
+    (animations2.ANIMATIONS, stills2.STILLS),  # the kinds 26 to 65
+]
+
+# The order is the number of the kind
 PICTURES = []
-for _name, (_fn, _ms) in animations.ANIMATIONS.items():
-    PICTURES.append((_name, "animation", _fn, _ms))
-for _name, _fn in stills.STILLS.items():
-    PICTURES.append((_name, "still", _fn, 0))
+for _animations, _stills in BATCHES:
+    for _name, (_fn, _ms) in _animations.items():
+        PICTURES.append((_name, "animation", _fn, _ms))
+    for _name, _fn in _stills.items():
+        PICTURES.append((_name, "still", _fn, 0))
+
+_names = [p[0] for p in PICTURES]
+for _name in _names:
+    if _names.count(_name) > 1:
+        sys.exit(f"{_name}: the name is in two batches")
+    if _name in NICE_OLED_KINDS:
+        sys.exit(f"{_name}: that is the name of a kind of zmk-nice-oled")
 
 
 def frames_of(entry):
