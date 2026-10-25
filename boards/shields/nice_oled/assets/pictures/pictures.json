@@ -2,7 +2,7 @@
   "generator": "scripts/pictures/make_pictures.py",
   "first_kind": 7,
   "kind_count": 66,
-  "total_bytes": 167216,
+  "total_bytes": 160768,
   "pictures": [
     {
       "name": "equalizer",
@@ -173,30 +173,6 @@
       "bytes": 520
     },
     {
-      "name": "alien",
-      "kind": 21,
-      "enum": "KP_OLED_ANIM_ALIEN",
-      "type": "still",
-      "frames": 1,
-      "width": 32,
-      "height": 32,
-      "cycle_ms": 0,
-      "file": "assets/pictures/alien.c",
-      "bytes": 136
-    },
-    {
-      "name": "heart",
-      "kind": 22,
-      "enum": "KP_OLED_ANIM_HEART",
-      "type": "still",
-      "frames": 1,
-      "width": 32,
-      "height": 32,
-      "cycle_ms": 0,
-      "file": "assets/pictures/heart.c",
-      "bytes": 136
-    },
-    {
       "name": "keyboard",
       "kind": 23,
       "enum": "KP_OLED_ANIM_KEYBOARD",
@@ -206,30 +182,6 @@
       "height": 64,
       "cycle_ms": 0,
       "file": "assets/pictures/keyboard.c",
-      "bytes": 264
-    },
-    {
-      "name": "pulsar",
-      "kind": 24,
-      "enum": "KP_OLED_ANIM_PULSAR",
-      "type": "still",
-      "frames": 1,
-      "width": 32,
-      "height": 128,
-      "cycle_ms": 0,
-      "file": "assets/pictures/pulsar.c",
-      "bytes": 520
-    },
-    {
-      "name": "rocket",
-      "kind": 25,
-      "enum": "KP_OLED_ANIM_ROCKET",
-      "type": "still",
-      "frames": 1,
-      "width": 32,
-      "height": 64,
-      "cycle_ms": 0,
-      "file": "assets/pictures/rocket.c",
       "bytes": 264
     },
     {
@@ -473,42 +425,6 @@
       "bytes": 6336
     },
     {
-      "name": "coffee",
-      "kind": 46,
-      "enum": "KP_OLED_ANIM_COFFEE",
-      "type": "still",
-      "frames": 1,
-      "width": 32,
-      "height": 64,
-      "cycle_ms": 0,
-      "file": "assets/pictures/coffee.c",
-      "bytes": 264
-    },
-    {
-      "name": "cactus",
-      "kind": 47,
-      "enum": "KP_OLED_ANIM_CACTUS",
-      "type": "still",
-      "frames": 1,
-      "width": 32,
-      "height": 64,
-      "cycle_ms": 0,
-      "file": "assets/pictures/cactus.c",
-      "bytes": 264
-    },
-    {
-      "name": "lighthouse",
-      "kind": 48,
-      "enum": "KP_OLED_ANIM_LIGHTHOUSE",
-      "type": "still",
-      "frames": 1,
-      "width": 32,
-      "height": 128,
-      "cycle_ms": 0,
-      "file": "assets/pictures/lighthouse.c",
-      "bytes": 520
-    },
-    {
       "name": "moon_cat",
       "kind": 49,
       "enum": "KP_OLED_ANIM_MOON_CAT",
@@ -518,18 +434,6 @@
       "height": 64,
       "cycle_ms": 0,
       "file": "assets/pictures/moon_cat.c",
-      "bytes": 264
-    },
-    {
-      "name": "robot",
-      "kind": 50,
-      "enum": "KP_OLED_ANIM_ROBOT",
-      "type": "still",
-      "frames": 1,
-      "width": 32,
-      "height": 64,
-      "cycle_ms": 0,
-      "file": "assets/pictures/robot.c",
       "bytes": 264
     },
     {
@@ -543,174 +447,118 @@
       "cycle_ms": 0,
       "file": "assets/pictures/planet.c",
       "bytes": 264
+    }
+  ],
+  "retired": [
+    {
+      "name": "alien",
+      "kind": 21,
+      "enum": "KP_OLED_ANIM_ALIEN"
+    },
+    {
+      "name": "heart",
+      "kind": 22,
+      "enum": "KP_OLED_ANIM_HEART"
+    },
+    {
+      "name": "pulsar",
+      "kind": 24,
+      "enum": "KP_OLED_ANIM_PULSAR"
+    },
+    {
+      "name": "rocket",
+      "kind": 25,
+      "enum": "KP_OLED_ANIM_ROCKET"
+    },
+    {
+      "name": "coffee",
+      "kind": 46,
+      "enum": "KP_OLED_ANIM_COFFEE"
+    },
+    {
+      "name": "cactus",
+      "kind": 47,
+      "enum": "KP_OLED_ANIM_CACTUS"
+    },
+    {
+      "name": "lighthouse",
+      "kind": 48,
+      "enum": "KP_OLED_ANIM_LIGHTHOUSE"
+    },
+    {
+      "name": "robot",
+      "kind": 50,
+      "enum": "KP_OLED_ANIM_ROBOT"
     },
     {
       "name": "castle",
       "kind": 52,
-      "enum": "KP_OLED_ANIM_CASTLE",
-      "type": "still",
-      "frames": 1,
-      "width": 32,
-      "height": 64,
-      "cycle_ms": 0,
-      "file": "assets/pictures/castle.c",
-      "bytes": 264
+      "enum": "KP_OLED_ANIM_CASTLE"
     },
     {
       "name": "tree",
       "kind": 53,
-      "enum": "KP_OLED_ANIM_TREE",
-      "type": "still",
-      "frames": 1,
-      "width": 32,
-      "height": 128,
-      "cycle_ms": 0,
-      "file": "assets/pictures/tree.c",
-      "bytes": 520
+      "enum": "KP_OLED_ANIM_TREE"
     },
     {
       "name": "skull",
       "kind": 54,
-      "enum": "KP_OLED_ANIM_SKULL",
-      "type": "still",
-      "frames": 1,
-      "width": 32,
-      "height": 64,
-      "cycle_ms": 0,
-      "file": "assets/pictures/skull.c",
-      "bytes": 264
+      "enum": "KP_OLED_ANIM_SKULL"
     },
     {
       "name": "sword",
       "kind": 55,
-      "enum": "KP_OLED_ANIM_SWORD",
-      "type": "still",
-      "frames": 1,
-      "width": 32,
-      "height": 128,
-      "cycle_ms": 0,
-      "file": "assets/pictures/sword.c",
-      "bytes": 520
+      "enum": "KP_OLED_ANIM_SWORD"
     },
     {
       "name": "key",
       "kind": 56,
-      "enum": "KP_OLED_ANIM_KEY",
-      "type": "still",
-      "frames": 1,
-      "width": 32,
-      "height": 64,
-      "cycle_ms": 0,
-      "file": "assets/pictures/key.c",
-      "bytes": 264
+      "enum": "KP_OLED_ANIM_KEY"
     },
     {
       "name": "antenna",
       "kind": 57,
-      "enum": "KP_OLED_ANIM_ANTENNA",
-      "type": "still",
-      "frames": 1,
-      "width": 32,
-      "height": 128,
-      "cycle_ms": 0,
-      "file": "assets/pictures/antenna.c",
-      "bytes": 520
+      "enum": "KP_OLED_ANIM_ANTENNA"
     },
     {
       "name": "potion",
       "kind": 58,
-      "enum": "KP_OLED_ANIM_POTION",
-      "type": "still",
-      "frames": 1,
-      "width": 32,
-      "height": 64,
-      "cycle_ms": 0,
-      "file": "assets/pictures/potion.c",
-      "bytes": 264
+      "enum": "KP_OLED_ANIM_POTION"
     },
     {
       "name": "sailboat",
       "kind": 59,
-      "enum": "KP_OLED_ANIM_SAILBOAT",
-      "type": "still",
-      "frames": 1,
-      "width": 32,
-      "height": 64,
-      "cycle_ms": 0,
-      "file": "assets/pictures/sailboat.c",
-      "bytes": 264
+      "enum": "KP_OLED_ANIM_SAILBOAT"
     },
     {
       "name": "compass",
       "kind": 60,
-      "enum": "KP_OLED_ANIM_COMPASS",
-      "type": "still",
-      "frames": 1,
-      "width": 32,
-      "height": 32,
-      "cycle_ms": 0,
-      "file": "assets/pictures/compass.c",
-      "bytes": 136
+      "enum": "KP_OLED_ANIM_COMPASS"
     },
     {
       "name": "crown",
       "kind": 61,
-      "enum": "KP_OLED_ANIM_CROWN",
-      "type": "still",
-      "frames": 1,
-      "width": 32,
-      "height": 32,
-      "cycle_ms": 0,
-      "file": "assets/pictures/crown.c",
-      "bytes": 136
+      "enum": "KP_OLED_ANIM_CROWN"
     },
     {
       "name": "cassette",
       "kind": 62,
-      "enum": "KP_OLED_ANIM_CASSETTE",
-      "type": "still",
-      "frames": 1,
-      "width": 32,
-      "height": 32,
-      "cycle_ms": 0,
-      "file": "assets/pictures/cassette.c",
-      "bytes": 136
+      "enum": "KP_OLED_ANIM_CASSETTE"
     },
     {
       "name": "floppy",
       "kind": 63,
-      "enum": "KP_OLED_ANIM_FLOPPY",
-      "type": "still",
-      "frames": 1,
-      "width": 32,
-      "height": 32,
-      "cycle_ms": 0,
-      "file": "assets/pictures/floppy.c",
-      "bytes": 136
+      "enum": "KP_OLED_ANIM_FLOPPY"
     },
     {
       "name": "phases",
       "kind": 64,
-      "enum": "KP_OLED_ANIM_PHASES",
-      "type": "still",
-      "frames": 1,
-      "width": 32,
-      "height": 128,
-      "cycle_ms": 0,
-      "file": "assets/pictures/phases.c",
-      "bytes": 520
+      "enum": "KP_OLED_ANIM_PHASES"
     },
     {
       "name": "mushroom",
       "kind": 65,
-      "enum": "KP_OLED_ANIM_MUSHROOM",
-      "type": "still",
-      "frames": 1,
-      "width": 32,
-      "height": 32,
-      "cycle_ms": 0,
-      "file": "assets/pictures/mushroom.c",
-      "bytes": 136
+      "enum": "KP_OLED_ANIM_MUSHROOM"
     }
   ]
 }

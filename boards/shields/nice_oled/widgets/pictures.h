@@ -2,7 +2,8 @@
  *
  * The pictures of the right screen that come after the ones of zmk-nice-oled (the OLED
  * layout of the lenerdz fork, CONFIG_KEYPAW_OLED_LAYOUT). widgets/animation.c includes this
- * file once, and builds its table of kinds from PICTURES(). */
+ * file once, and builds its table of kinds from PICTURES(). A retired kind (a picture that
+ * was taken out) has no frames and no row here: its entry of that table stays empty. */
 #ifndef NICE_OLED_PICTURES_H
 #define NICE_OLED_PICTURES_H
 
@@ -249,15 +250,7 @@ LV_IMG_DECLARE(pic_skyline);
 
 LV_IMG_DECLARE(pic_circuit);
 
-LV_IMG_DECLARE(pic_alien);
-
-LV_IMG_DECLARE(pic_heart);
-
 LV_IMG_DECLARE(pic_keyboard);
-
-LV_IMG_DECLARE(pic_pulsar);
-
-LV_IMG_DECLARE(pic_rocket);
 
 LV_IMG_DECLARE(pic_waterfall_00);
 LV_IMG_DECLARE(pic_waterfall_01);
@@ -657,45 +650,9 @@ LV_IMG_DECLARE(pic_keywave_21);
 LV_IMG_DECLARE(pic_keywave_22);
 LV_IMG_DECLARE(pic_keywave_23);
 
-LV_IMG_DECLARE(pic_coffee);
-
-LV_IMG_DECLARE(pic_cactus);
-
-LV_IMG_DECLARE(pic_lighthouse);
-
 LV_IMG_DECLARE(pic_moon_cat);
 
-LV_IMG_DECLARE(pic_robot);
-
 LV_IMG_DECLARE(pic_planet);
-
-LV_IMG_DECLARE(pic_castle);
-
-LV_IMG_DECLARE(pic_tree);
-
-LV_IMG_DECLARE(pic_skull);
-
-LV_IMG_DECLARE(pic_sword);
-
-LV_IMG_DECLARE(pic_key);
-
-LV_IMG_DECLARE(pic_antenna);
-
-LV_IMG_DECLARE(pic_potion);
-
-LV_IMG_DECLARE(pic_sailboat);
-
-LV_IMG_DECLARE(pic_compass);
-
-LV_IMG_DECLARE(pic_crown);
-
-LV_IMG_DECLARE(pic_cassette);
-
-LV_IMG_DECLARE(pic_floppy);
-
-LV_IMG_DECLARE(pic_phases);
-
-LV_IMG_DECLARE(pic_mushroom);
 
 static const lv_img_dsc_t *const pic_equalizer_imgs[] = {
     &pic_equalizer_00, &pic_equalizer_01, &pic_equalizer_02, &pic_equalizer_03,
@@ -771,20 +728,8 @@ static const lv_img_dsc_t *const pic_skyline_imgs[] = {
 static const lv_img_dsc_t *const pic_circuit_imgs[] = {
     &pic_circuit,
 };
-static const lv_img_dsc_t *const pic_alien_imgs[] = {
-    &pic_alien,
-};
-static const lv_img_dsc_t *const pic_heart_imgs[] = {
-    &pic_heart,
-};
 static const lv_img_dsc_t *const pic_keyboard_imgs[] = {
     &pic_keyboard,
-};
-static const lv_img_dsc_t *const pic_pulsar_imgs[] = {
-    &pic_pulsar,
-};
-static const lv_img_dsc_t *const pic_rocket_imgs[] = {
-    &pic_rocket,
 };
 static const lv_img_dsc_t *const pic_waterfall_imgs[] = {
     &pic_waterfall_00, &pic_waterfall_01, &pic_waterfall_02, &pic_waterfall_03,
@@ -906,65 +851,11 @@ static const lv_img_dsc_t *const pic_keywave_imgs[] = {
     &pic_keywave_15, &pic_keywave_16, &pic_keywave_17, &pic_keywave_18, &pic_keywave_19,
     &pic_keywave_20, &pic_keywave_21, &pic_keywave_22, &pic_keywave_23,
 };
-static const lv_img_dsc_t *const pic_coffee_imgs[] = {
-    &pic_coffee,
-};
-static const lv_img_dsc_t *const pic_cactus_imgs[] = {
-    &pic_cactus,
-};
-static const lv_img_dsc_t *const pic_lighthouse_imgs[] = {
-    &pic_lighthouse,
-};
 static const lv_img_dsc_t *const pic_moon_cat_imgs[] = {
     &pic_moon_cat,
 };
-static const lv_img_dsc_t *const pic_robot_imgs[] = {
-    &pic_robot,
-};
 static const lv_img_dsc_t *const pic_planet_imgs[] = {
     &pic_planet,
-};
-static const lv_img_dsc_t *const pic_castle_imgs[] = {
-    &pic_castle,
-};
-static const lv_img_dsc_t *const pic_tree_imgs[] = {
-    &pic_tree,
-};
-static const lv_img_dsc_t *const pic_skull_imgs[] = {
-    &pic_skull,
-};
-static const lv_img_dsc_t *const pic_sword_imgs[] = {
-    &pic_sword,
-};
-static const lv_img_dsc_t *const pic_key_imgs[] = {
-    &pic_key,
-};
-static const lv_img_dsc_t *const pic_antenna_imgs[] = {
-    &pic_antenna,
-};
-static const lv_img_dsc_t *const pic_potion_imgs[] = {
-    &pic_potion,
-};
-static const lv_img_dsc_t *const pic_sailboat_imgs[] = {
-    &pic_sailboat,
-};
-static const lv_img_dsc_t *const pic_compass_imgs[] = {
-    &pic_compass,
-};
-static const lv_img_dsc_t *const pic_crown_imgs[] = {
-    &pic_crown,
-};
-static const lv_img_dsc_t *const pic_cassette_imgs[] = {
-    &pic_cassette,
-};
-static const lv_img_dsc_t *const pic_floppy_imgs[] = {
-    &pic_floppy,
-};
-static const lv_img_dsc_t *const pic_phases_imgs[] = {
-    &pic_phases,
-};
-static const lv_img_dsc_t *const pic_mushroom_imgs[] = {
-    &pic_mushroom,
 };
 
 // X(KIND, name, cycle in ms): KIND is the end of the name of KP_OLED_ANIM_<KIND> of
@@ -984,11 +875,7 @@ static const lv_img_dsc_t *const pic_mushroom_imgs[] = {
     X(MOUNTAINS, pic_mountains, 0) \
     X(SKYLINE, pic_skyline, 0) \
     X(CIRCUIT, pic_circuit, 0) \
-    X(ALIEN, pic_alien, 0) \
-    X(HEART, pic_heart, 0) \
     X(KEYBOARD, pic_keyboard, 0) \
-    X(PULSAR, pic_pulsar, 0) \
-    X(ROCKET, pic_rocket, 0) \
     X(WATERFALL, pic_waterfall, 1600) \
     X(LAVA, pic_lava, 3200) \
     X(LIGHTNING, pic_lightning, 1600) \
@@ -1009,25 +896,7 @@ static const lv_img_dsc_t *const pic_mushroom_imgs[] = {
     X(UFO, pic_ufo, 1600) \
     X(EYE, pic_eye, 2400) \
     X(KEYWAVE, pic_keywave, 2400) \
-    X(COFFEE, pic_coffee, 0) \
-    X(CACTUS, pic_cactus, 0) \
-    X(LIGHTHOUSE, pic_lighthouse, 0) \
     X(MOON_CAT, pic_moon_cat, 0) \
-    X(ROBOT, pic_robot, 0) \
-    X(PLANET, pic_planet, 0) \
-    X(CASTLE, pic_castle, 0) \
-    X(TREE, pic_tree, 0) \
-    X(SKULL, pic_skull, 0) \
-    X(SWORD, pic_sword, 0) \
-    X(KEY, pic_key, 0) \
-    X(ANTENNA, pic_antenna, 0) \
-    X(POTION, pic_potion, 0) \
-    X(SAILBOAT, pic_sailboat, 0) \
-    X(COMPASS, pic_compass, 0) \
-    X(CROWN, pic_crown, 0) \
-    X(CASSETTE, pic_cassette, 0) \
-    X(FLOPPY, pic_floppy, 0) \
-    X(PHASES, pic_phases, 0) \
-    X(MUSHROOM, pic_mushroom, 0)
+    X(PLANET, pic_planet, 0)
 
 #endif /* NICE_OLED_PICTURES_H */

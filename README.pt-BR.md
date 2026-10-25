@@ -69,6 +69,7 @@ O aplicativo host complementar, `zmk-hid-host`, fornece a ponte de dados necess�
 - **Redução da tensão no pescoço**: Veja as informações no teclado em vez de no monitor.
 - **Compatível com modo escuro**: Otimizado para o nice!oled.
 - **Layout em tempo de execução (opcional)**: com o módulo [lenerdz/zmk-rgb-matrix](https://github.com/lenerdz/zmk-rgb-matrix), o ZMK Studio escolhe quais widgets são desenhados, onde, qual animação o periférico toca, e como essa imagem é girada, recortada em um pedaço e misturada com os widgets que ficam sobre ela; veja [Layout das telas OLED em tempo de execução](#layout-das-telas-oled-em-tempo-de-execução-central-e-periférico).
+- **Anti burn-in (opcional)**: com o mesmo módulo, as duas telas movem tudo o que mostram um pixel de cada vez por um caminho curto (o deslocamento de pixels), e o módulo pode escurecer e apagar as telas quando ninguém digita; veja [Anti burn-in: deslocamento de pixels](#anti-burn-in-deslocamento-de-pixels-central-e-periférico).
 
 ### Tela central
 - **Widgets de WPM**: Gráficos, velocímetro, Luna, Bongo Cat.
@@ -84,7 +85,7 @@ O aplicativo host complementar, `zmk-hid-host`, fornece a ponte de dados necess�
 - **Bateria inteligente**: Animação eficiente do status da bateria.
 - **Sleep Art**: Imagens personalizadas durante o idle/sleep (ocioso/repouso).
 - **Imagens estáticas**: Vim, logotipos personalizados (modo de baixo consumo).
-- **Mais imagens (opcional, com o layout em tempo de execução)**: 11 animações a mais e 8 imagens estáticas a mais, desenhadas por `scripts/pictures/`, que o ZMK Studio pode escolher, girar, recortar em um pedaço e misturar com os widgets; veja [Novas imagens da tela direita](#novas-imagens-da-tela-direita).
+- **Mais imagens (opcional, com o layout em tempo de execução)**: 31 animações a mais e 6 imagens estáticas a mais, desenhadas por `scripts/pictures/`, que o ZMK Studio pode escolher, girar, recortar em um pedaço e misturar com os widgets; veja [Novas imagens da tela direita](#novas-imagens-da-tela-direita).
 
 # Galeria
 
@@ -258,6 +259,23 @@ Os textos estão em inglês por padrão; `CONFIG_NICE_OLED_WIDGET_LED_TOAST_LANG
 - O toast existe apenas na tela do periférico: a opção depende de um build split que não seja a metade central.
 - A posição padrão (`CONFIG_NICE_OLED_WIDGET_LED_TOAST_CUSTOM_X`/`_Y`, veja [Posição do widget do toast de RGB](#posição-do-widget-do-toast-de-rgb)) foi calculada para o OLED de 128x32 com a animação padrão do gato, e não foi testada em outros displays ou animações. Ainda não testado em um teclado de verdade.
 
+## Anti burn-in: deslocamento de pixels (central e periférico)
+
+Um OLED que mostra a mesma imagem por horas envelhece os pixels que ficam acesos mais rápido que os apagados, e estas telas desenham os mesmos widgets nos mesmos lugares o dia todo. Com `CONFIG_KEYPAW_DISPLAY_SETTINGS=y` (uma opção do módulo [lenerdz/zmk-rgb-matrix](https://github.com/lenerdz/zmk-rgb-matrix); veja "Display (OLED) settings" no README dele) as duas telas movem tudo o que mostram, um pixel de cada vez, por um caminho curto: é o **deslocamento de pixels** (`widgets/pixel_shift.c`). O ZMK Studio o edita (a aba Display do app [lenerdz/zmk-studio](https://github.com/lenerdz/zmk-studio)), cada metade guarda as configurações na própria flash (a central as copia para a periférica), e ele não precisa de `CONFIG_KEYPAW_OLED_LAYOUT`. O módulo faz a outra metade da proteção (escurece e apaga as telas quando ninguém digita); veja o README dele.
+
+| Configuração | Id | O que faz | Padrão |
+|---|---|---|---|
+| `KP_DISPLAY_SHIFT` | 11 | 0 ou 1: o deslocamento de pixels desligado ou ligado | 1 |
+| `KP_DISPLAY_SHIFT_EVERY_S` | 12 | segundos entre dois passos do caminho, de 10 a 3600 | 60 |
+| `KP_DISPLAY_SHIFT_PX` | 13 | quanto a tela se afasta do seu lugar, de 1 a 4 pixels para cada lado | 2 |
+
+Como funciona:
+
+- O que se move é o canvas da tela de status (`lv_obj_align()` do canvas dentro do seu contêiner), então os widgets, a animação ou imagem e o toast se movem juntos. O caminho é o `kp_display_shift_offset()` do módulo: ele percorre os quadrados de uma grade de (2 x px + 1) por (2 x px + 1), linha por linha (as linhas ímpares da direita para a esquerda) e depois volta pelo mesmo caminho, então a tela só se move um pixel de cada vez, nada pula, e todo quadrado tem a sua vez. O passo 0 é o meio: o lugar onde a tela começou.
+- Um timer do LVGL olha as três configurações a cada segundo, então uma mudança no ZMK Studio vale em até um segundo: desligar o deslocamento põe o canvas de volta no lugar dele, ligá-lo espera um tempo inteiro antes do primeiro passo, e uma distância menor leva o canvas de imediato ao quadrado que o mesmo passo tem no caminho menor. Uma olhada atrasada (o teclado estava ocupado) dá um passo, nunca mais que um.
+- A margem que se abre de um lado é a cor de fundo da tela (o contêiner do canvas usa `LVGL_BACKGROUND` e não tem borda), e o que passa da borda do painel do outro lado fica cortado por um tempo. Um widget bem na borda da tela perde até `KP_DISPLAY_SHIFT_PX` linhas ou colunas de pixels enquanto o caminho está daquele lado; a distância padrão é de 2 pixels, e 1 perde menos. Não conferido em uma tela real.
+- `python tests/pixel_shift/test_pixel_shift.py` compila o `widgets/pixel_shift.c` como ele é, com stubs do LVGL e do Zephyr (`tests/pixel_shift/stubs`) e o `zmk/display_settings.h` verdadeiro do módulo (um checkout do [lenerdz/zmk-rgb-matrix](https://github.com/lenerdz/zmk-rgb-matrix), na pasta da variável de ambiente `KEYPAW_RGB_MATRIX_DIR` ou ao lado deste repositório como `../zmk-rgb-matrix`; sem ele o teste é pulado), e verifica o tempo: nenhum passo antes de um tempo inteiro, um pixel de cada vez dentro da distância, desligar devolve o canvas ao lugar, uma olhada atrasada dá um passo, e uma mudança das configurações vale na próxima olhada. O que a tela realmente mostra **não foi experimentado em um teclado real**: o canvas se movendo dentro do seu contêiner, e o contêiner mostrando o fundo onde o canvas saiu.
+
 ## Layout das telas OLED em tempo de execução (central e periférico)
 
 Com `CONFIG_KEYPAW_OLED_LAYOUT=y` (uma opção do módulo [lenerdz/zmk-rgb-matrix](https://github.com/lenerdz/zmk-rgb-matrix); veja "Layout das telas OLED" no README dele) os widgets deixam de tirar só do build o lugar onde ficam e se aparecem. Toda vez que desenham, eles leem do módulo se são mostrados e onde e, no periférico, qual animação ou imagem aparece e quanto tempo dura um ciclo. O [ZMK Studio](https://zmk.dev/docs/features/studio) edita esses valores (a aba OLED do app [lenerdz/zmk-studio](https://github.com/lenerdz/zmk-studio)), cada metade os guarda na sua própria flash, e a tela desenha de novo assim que um deles muda (o módulo dispara o evento `zmk_display_settings_changed`).
@@ -281,13 +299,13 @@ Ela precisa do OLED (o shield `nice_oled` com o widget de status) e de `CONFIG_K
 | esquerda | número de WPM | `CONFIG_NICE_OLED_WIDGET_WPM_LABEL_CUSTOM_X` e `_Y` | |
 | esquerda | gráfico de WPM | x -1 e y 95, a grade embaixo dele (ela não tem opção) | os pontos do gráfico |
 
-**Animações e imagens.** Com a opção ligada, todas as animações e imagens do periférico são compiladas, seja qual for o que `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_*` diz, então o ZMK Studio pode alternar entre elas com o teclado funcionando; as opções só escolhem a que aparece no início. São 66: as 7 do shield original (crystal, cat, head, spaceman, pokemon, vim e vip_marcos) e as 59 de [Novas imagens da tela direita](#novas-imagens-da-tela-direita) (19 que vieram primeiro, e mais 40 em um segundo lote). Um ciclo leva o tempo que pertence a cada animação (960 ms para crystal e cat, 4800 ms para head e spaceman, 10000 ms para pokemon, e o da tabela das imagens novas para essas), exceto a que o build escolheu, que mantém `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_MS`; o ZMK Studio pode definir outro tempo, de 100 a 60000 ms. Com `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_SMART_BATTERY` a animação não faz parte do layout. A imagem também pode ser girada, recortada em um pedaço e misturada com os widgets: veja [Imagem no canvas](#imagem-no-canvas-girar-recortar-e-misturar).
+**Animações e imagens.** Com a opção ligada, todas as animações e imagens do periférico são compiladas, seja qual for o que `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_*` diz, então o ZMK Studio pode alternar entre elas com o teclado funcionando; as opções só escolhem a que aparece no início. São 42: as 5 animações do shield original (crystal, cat, head, spaceman e pokemon) e as 37 de [Novas imagens da tela direita](#novas-imagens-da-tela-direita) (31 animações e 6 imagens estáticas). Os tipos são numerados até 65 (66 números), porque um tipo mantém o seu número quando a imagem dele é retirada: 24 estão **aposentados** (as imagens estáticas vim e vip_marcos do shield original e 22 das novas; veja [Tipos aposentados](#tipos-aposentados)). Um tipo aposentado não tem imagem no firmware, o teclado não o aceita como configuração, e um teclado que tinha guardado um deles o esquece e volta ao padrão do build. Um ciclo leva o tempo que pertence a cada animação (960 ms para crystal e cat, 4800 ms para head e spaceman, 10000 ms para pokemon, e o da tabela das imagens novas para essas), exceto a que o build escolheu, que mantém `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_MS`; o ZMK Studio pode definir outro tempo, de 100 a 60000 ms. Com `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_SMART_BATTERY` a animação não faz parte do layout. A imagem também pode ser girada, recortada em um pedaço e misturada com os widgets: veja [Imagem no canvas](#imagem-no-canvas-girar-recortar-e-misturar).
 
 **Custo.** Medido com o Corne do [lenerdz/corne-zmk](https://github.com/lenerdz/corne-zmk) (o build das revisões do `config/west.yml` dele), em comparação com o mesmo build sem o layout: a metade direita cresce 254.652 bytes de flash (todas as animações e imagens são compiladas: 167.216 bytes delas são os dados das 59 imagens que o `make_pictures.py` desenha, e o resto são os descritores das imagens e o código que coloca a imagem no canvas) e 616 bytes de RAM, e a metade esquerda 2.592 bytes de flash e 240 bytes de RAM. As 40 imagens do segundo lote, sozinhas, somaram 114.616 bytes de flash à metade direita e nada à RAM dela.
 
 **Fora do escopo.** O bongo cat, o cachorro luna, o bongo cat responsivo, os indicadores de HID e de modificadores, os widgets de Raw HID, a arte de repouso e a animação de bateria inteligente não fazem parte do layout: eles são desenhados onde o build diz.
 
-**Situação.** Compila para as duas metades no CI do [lenerdz/corne-zmk](https://github.com/lenerdz/corne-zmk), e o código que coloca a imagem no canvas e os arquivos que o `make_pictures.py` escreve são testados em um computador (veja abaixo). A primeira versão do layout (os widgets se movendo e sumindo, a animação alternando) foi usada em um Corne de verdade, e o dono dele relatou que funcionou, sem detalhes sobre cada operação. O que veio depois ainda não foi experimentado em um teclado real: a imagem no canvas (um widget sobre ela, o giro, o recorte e a mistura), as 59 imagens novas, os quadros que agora vêm de um work item que desenha a tela de novo a cada quadro (com que frequência ele faz isso, e quanto isso custa em bateria, não foi medido), e o redesenho do periférico quando essas configurações chegam a ele.
+**Situação.** Compila para as duas metades no CI do [lenerdz/corne-zmk](https://github.com/lenerdz/corne-zmk), e o código que coloca a imagem no canvas e os arquivos que o `make_pictures.py` escreve são testados em um computador (veja abaixo). A primeira versão do layout (os widgets se movendo e sumindo, a animação alternando) foi usada em um Corne de verdade, e o dono dele relatou que funcionou, sem detalhes sobre cada operação. O que veio depois ainda não foi experimentado em um teclado real: a imagem no canvas (um widget sobre ela, o giro, o recorte e a mistura), as imagens novas, o deslocamento de pixels, os quadros que agora vêm de um work item que desenha a tela de novo a cada quadro (com que frequência ele faz isso, e quanto isso custa em bateria, não foi medido), e o redesenho do periférico quando essas configurações chegam a ele.
 
 ### Imagem no canvas: girar, recortar e misturar
 
@@ -308,7 +326,7 @@ Os pixels apagados de uma imagem nunca tocam o canvas. As imagens são guardadas
 
 ### Novas imagens da tela direita
 
-Os tipos de 7 a 65 são desenhados por `scripts/pictures/make_pictures.py` em dois lotes: o primeiro (tipos de 7 a 25, em `animations.py` e `stills.py`: 11 animações, depois 8 imagens estáticas) e o segundo (tipos de 26 a 65, em `animations2.py` e `stills2.py`: 20 animações, depois 20 imagens estáticas). São em pé e com 32 pixels de largura (a largura do painel), e escritos como arquivos LVGL de 1 bit por pixel como os outros assets (`assets/pictures/<name>.c`), com a lista `widgets/pictures.h` (a tabela `PICTURES(X)` que o `widgets/animation.c` transforma na sua tabela de tipos) e o manifesto `assets/pictures/pictures.json` (o tipo, o tamanho, os quadros e o ciclo de cada uma, que o app do ZMK Studio lê para fazer os sprites dele).
+Os tipos de 7 a 65 são desenhados por `scripts/pictures/make_pictures.py` em dois lotes: o primeiro (tipos de 7 a 25, em `animations.py` e `stills.py`: 11 animações, depois 8 imagens estáticas, 4 delas aposentadas) e o segundo (tipos de 26 a 65, em `animations2.py` e `stills2.py`: 20 animações, depois 20 imagens estáticas, 18 delas aposentadas). Dos 59 tipos, 37 têm imagem: 31 animações e 6 imagens estáticas (`mountains`, `skyline`, `circuit`, `keyboard`, `moon_cat` e `planet`); os outros 22 estão [aposentados](#tipos-aposentados) e não estão na tabela abaixo. São em pé e com 32 pixels de largura (a largura do painel), e escritos como arquivos LVGL de 1 bit por pixel como os outros assets (`assets/pictures/<name>.c`), com a lista `widgets/pictures.h` (a tabela `PICTURES(X)` que o `widgets/animation.c` transforma na sua tabela de tipos) e o manifesto `assets/pictures/pictures.json` (o tipo, o tamanho, os quadros e o ciclo de cada uma, que o app do ZMK Studio lê para fazer os sprites dele).
 
 | Tipo | Imagem | Tamanho | Quadros | Um ciclo | O que é |
 |---|---|---|---|---|---|
@@ -326,11 +344,7 @@ Os tipos de 7 a 65 são desenhados por `scripts/pictures/make_pictures.py` em do
 | 18 | `mountains` | 32 x 128 | estática | nenhum | Um céu noturno com uma lua, e três cadeias de montanhas |
 | 19 | `skyline` | 32 x 128 | estática | nenhum | Uma cidade à noite, com as janelas acesas e algumas estrelas |
 | 20 | `circuit` | 32 x 128 | estática | nenhum | As trilhas de uma placa de circuito, com um chip |
-| 21 | `alien` | 32 x 32 | estática | nenhum | Um pequeno alienígena robô em um chão estrelado |
-| 22 | `heart` | 32 x 32 | estática | nenhum | Um coração com um brilho |
 | 23 | `keyboard` | 32 x 64 | estática | nenhum | As duas metades de um Corne, vistas de cima |
-| 24 | `pulsar` | 32 x 128 | estática | nenhum | Linhas de um sinal, uma acima da outra, que escondem as de trás, como a capa de um disco antigo |
-| 25 | `rocket` | 32 x 64 | estática | nenhum | Um foguete decolando |
 | 26 | `waterfall` | 32 x 128 | 16 | 1600 ms | Água que cai de uma saliência entre dois penhascos, com névoa e uma poça que ondula |
 | 27 | `lava` | 32 x 128 | 16 | 3200 ms | Uma lâmpada de lava: bolhas de cera que sobem, se esticam e afundam de novo em um vidro com base |
 | 28 | `lightning` | 32 x 64 | 16 | 1600 ms | Uma tempestade: uma nuvem, chuva inclinada e dois raios que piscam um depois do outro |
@@ -351,26 +365,8 @@ Os tipos de 7 a 65 são desenhados por `scripts/pictures/make_pictures.py` em do
 | 43 | `ufo` | 32 x 64 | 16 | 1600 ms | Um disco voador que paira sobre um campo e levanta uma vaca com o seu feixe, e depois a devolve |
 | 44 | `eye` | 32 x 32 | 24 | 2400 ms | Um olho que olha em volta desenhando um oito e pisca uma vez por ciclo |
 | 45 | `keywave` | 32 x 64 | 24 | 2400 ms | Uma onda de toques de tecla que varre um campo de teclas |
-| 46 | `coffee` | 32 x 64 | estática | nenhum | Uma xícara de café com a marca ZMK e vapor, no pires |
-| 47 | `cactus` | 32 x 64 | estática | nenhum | Um cacto saguaro no deserto, com o sol baixo sobre as dunas |
-| 48 | `lighthouse` | 32 x 128 | estática | nenhum | Um farol sobre a sua rocha, varrendo a noite com o seu feixe |
 | 49 | `moon_cat` | 32 x 64 | estática | nenhum | Um gato sentado em um muro diante da lua cheia, visto de costas |
-| 50 | `robot` | 32 x 64 | estática | nenhum | Um robô simpático com uma antena |
 | 51 | `planet` | 32 x 64 | estática | nenhum | Um planeta com anéis e uma pequena lua, entre as estrelas |
-| 52 | `castle` | 32 x 64 | estática | nenhum | Um castelo com duas torres e uma torre de menagem, sob a lua |
-| 53 | `tree` | 32 x 128 | estática | nenhum | Uma árvore grande em uma colina, com maçãs, um oco e um casal de pássaros |
-| 54 | `skull` | 32 x 64 | estática | nenhum | Uma caveira com ossos cruzados |
-| 55 | `sword` | 32 x 128 | estática | nenhum | Uma espada longa com uma gema na guarda |
-| 56 | `key` | 32 x 64 | estática | nenhum | Uma chave antiga com a argola de três lóbulos |
-| 57 | `antenna` | 32 x 128 | estática | nenhum | Uma torre de rádio emitindo o seu sinal |
-| 58 | `potion` | 32 x 64 | estática | nenhum | Um frasco redondo com uma poção borbulhante e um coração |
-| 59 | `sailboat` | 32 x 64 | estática | nenhum | Um veleiro nas ondas, com o sol e uma gaivota |
-| 60 | `compass` | 32 x 32 | estática | nenhum | Uma rosa dos ventos dentro de dois anéis |
-| 61 | `crown` | 32 x 32 | estática | nenhum | Uma coroa com cinco pontas e joias |
-| 62 | `cassette` | 32 x 32 | estática | nenhum | Uma fita cassete de áudio, com a etiqueta MIX e os seus dois carretéis |
-| 63 | `floppy` | 32 x 32 | estática | nenhum | Um disquete, com a sua aba de metal e uma etiqueta que diz ZMK |
-| 64 | `phases` | 32 x 128 | estática | nenhum | As oito fases da lua, uma acima da outra |
-| 65 | `mushroom` | 32 x 32 | estática | nenhum | Um cogumelo de chapéu manchado e com rosto, como nos jogos antigos |
 
 | Comando | O que faz |
 |---|---|
@@ -380,7 +376,43 @@ Os tipos de 7 a 65 são desenhados por `scripts/pictures/make_pictures.py` em do
 | `python scripts/pictures/make_pictures.py --check` | falha quando os arquivos não são o que `--write` faz |
 | `python scripts/pictures/make_pictures.py --check --module <zmk-rgb-matrix>` | também verifica que o enum do módulo tem as imagens |
 
-O número de um tipo é o que o teclado guarda na sua flash, então uma imagem nova é **só acrescentada no fim**, em um lote novo: escreva o desenho dela em um novo par de arquivos (como `animations2.py` e `stills2.py`), liste o par em `BATCHES` do `make_pictures.py` (as animações de um lote vêm primeiro, depois as imagens estáticas dele; um nome não pode se repetir, nem ser o de um dos tipos originais), ponha o mesmo nome com o mesmo número em `enum kp_oled_anim_kind` do módulo (`include/zmk/display_settings.h`), aumente `KP_OLED_ANIM_KIND_COUNT`, rode `--write` e gere de novo os sprites do app (`scripts/oled-assets/convert.py` do [lenerdz/zmk-studio](https://github.com/lenerdz/zmk-studio), que lê o `pictures.json`). `python tests/picture/test_generated.py` verifica que os arquivos são o que o script faz, que um compilador C lê neles os mesmos bytes que um analisador do texto lê (e que eles voltam a ser as imagens que foram desenhadas), que a lista é consistente, e que todo tipo que existe mantém o seu nome e o seu número. A aparência dos desenhos foi conferida em folhas de arquivos PNG, não em uma tela real.
+O número de um tipo é o que o teclado guarda na sua flash, então uma imagem nova é **só acrescentada no fim**, em um lote novo: escreva o desenho dela em um novo par de arquivos (como `animations2.py` e `stills2.py`), liste o par em `BATCHES` do `make_pictures.py` (as animações de um lote vêm primeiro, depois as imagens estáticas dele; um nome não pode se repetir, nem ser o de um dos tipos originais), ponha o mesmo nome com o mesmo número em `enum kp_oled_anim_kind` do módulo (`include/zmk/display_settings.h`), aumente `KP_OLED_ANIM_KIND_COUNT`, rode `--write` e gere de novo os sprites do app (`scripts/oled-assets/convert.py` do [lenerdz/zmk-studio](https://github.com/lenerdz/zmk-studio), que lê o `pictures.json`). Para retirar uma imagem, mantenha o nome e o número dela: ponha `None` no lugar dela em `STILLS`, marque o tipo como aposentado em `kp_oled_anim_kind_retired()` do módulo, rode `--write` (ele apaga o arquivo antigo) e gere de novo os sprites do app. `python tests/picture/test_generated.py` verifica que os arquivos são o que o script faz, que um compilador C lê neles os mesmos bytes que um analisador do texto lê (e que eles voltam a ser as imagens que foram desenhadas), que a lista é consistente, e que todo tipo que existe mantém o seu nome e o seu número (um tipo aposentado também os mantém, e não tem arquivo). A aparência dos desenhos foi conferida em folhas de arquivos PNG, não em uma tela real.
+
+#### Tipos aposentados
+
+Vinte e duas das imagens estáticas foram retiradas do gerador e do firmware (só seis foram mantidas: `mountains`, `skyline`, `circuit`, `keyboard`, `moon_cat` e `planet`), e o mesmo aconteceu com `vim` (5) e `vip_marcos` (6), as duas imagens estáticas do shield original, no layout em tempo de execução. Um tipo mantém o seu número e o seu nome quando a imagem dele sai, porque o número é o que o teclado tem na sua flash e o enum do módulo é feito dos nomes:
+
+- em `stills.py` e `stills2.py` a função sumiu e a entrada de `STILLS` é `None`;
+- o `make_pictures.py` não escreve arquivo nem linha de `PICTURES(X)` para ele (então a tabela do `widgets/animation.c` tem uma entrada vazia: sem quadros), e o lista em `"retired"` no `pictures.json`;
+- o `animation_apply()` nunca escolhe um tipo que não tem quadros: ele desenha o padrão do build no lugar (que o módulo faz ser `crystal` quando o build pediu um tipo aposentado), então a tela nunca desenha a partir do nada;
+- no módulo, `kp_oled_anim_kind_retired()` diz que ele está aposentado: o teclado não o aceita como configuração e descarta um que tinha guardado. `python scripts/pictures/make_pictures.py --check --module <zmk-rgb-matrix>` falha quando as duas listas discordam.
+
+As opções `CONFIG_NICE_OLED_WIDGET_STATIC_IMAGE_PERIPHERAL_VIM` e `CONFIG_NICE_OLED_WIDGET_STATIC_IMAGE_PERIPHERAL_VIP_MARCOS` continuam valendo em um build **sem** o layout. Com `CONFIG_KEYPAW_OLED_LAYOUT=y`, um build que pede uma delas começa com `crystal`.
+
+| Tipo | Imagem | Tamanho | O que era |
+|---|---|---|---|
+| 21 | `alien` | 32 x 32 | Um pequeno alienígena robô em um chão estrelado |
+| 22 | `heart` | 32 x 32 | Um coração com um brilho |
+| 24 | `pulsar` | 32 x 128 | Linhas de um sinal, uma acima da outra, que escondem as de trás, como a capa de um disco antigo |
+| 25 | `rocket` | 32 x 64 | Um foguete decolando |
+| 46 | `coffee` | 32 x 64 | Uma xícara de café com a marca ZMK e vapor, no pires |
+| 47 | `cactus` | 32 x 64 | Um cacto saguaro no deserto, com o sol baixo sobre as dunas |
+| 48 | `lighthouse` | 32 x 128 | Um farol sobre a sua rocha, varrendo a noite com o seu feixe |
+| 50 | `robot` | 32 x 64 | Um robô simpático com uma antena |
+| 52 | `castle` | 32 x 64 | Um castelo com duas torres e uma torre de menagem, sob a lua |
+| 53 | `tree` | 32 x 128 | Uma árvore grande em uma colina, com maçãs, um oco e um casal de pássaros |
+| 54 | `skull` | 32 x 64 | Uma caveira com ossos cruzados |
+| 55 | `sword` | 32 x 128 | Uma espada longa com uma gema na guarda |
+| 56 | `key` | 32 x 64 | Uma chave antiga com a argola de três lóbulos |
+| 57 | `antenna` | 32 x 128 | Uma torre de rádio emitindo o seu sinal |
+| 58 | `potion` | 32 x 64 | Um frasco redondo com uma poção borbulhante e um coração |
+| 59 | `sailboat` | 32 x 64 | Um veleiro nas ondas, com o sol e uma gaivota |
+| 60 | `compass` | 32 x 32 | Uma rosa dos ventos dentro de dois anéis |
+| 61 | `crown` | 32 x 32 | Uma coroa com cinco pontas e joias |
+| 62 | `cassette` | 32 x 32 | Uma fita cassete de áudio, com a etiqueta MIX e os seus dois carretéis |
+| 63 | `floppy` | 32 x 32 | Um disquete, com a sua aba de metal e uma etiqueta que diz ZMK |
+| 64 | `phases` | 32 x 128 | As oito fases da lua, uma acima da outra |
+| 65 | `mushroom` | 32 x 32 | Um cogumelo de chapéu manchado e com rosto, como nos jogos antigos |
 
 ## Específico do central
 

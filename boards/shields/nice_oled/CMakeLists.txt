@@ -40,6 +40,8 @@ if(CONFIG_ZMK_DISPLAY AND CONFIG_NICE_OLED_WIDGET_STATUS)
     endif()
     zephyr_library_sources(widgets/output.c)
     zephyr_library_sources(widgets/util.c)
+    # Anti burn-in (zmk-rgb-matrix display settings): the pixel shift of both screens
+    zephyr_library_sources_ifdef(CONFIG_KEYPAW_DISPLAY_SETTINGS widgets/pixel_shift.c)
 
     zephyr_library_sources(assets/vim.c)
     if(CONFIG_NICE_OLED_SHOW_SLEEP_ART_ON_IDLE OR CONFIG_NICE_OLED_SHOW_SLEEP_ART_ON_SLEEP)
@@ -93,8 +95,9 @@ if(CONFIG_ZMK_DISPLAY AND CONFIG_NICE_OLED_WIDGET_STATUS)
       zephyr_library_sources(assets/crystal.c)
       if(CONFIG_KEYPAW_OLED_LAYOUT AND NOT CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_SMART_BATTERY)
         # The OLED layout (zmk-rgb-matrix) picks the animation or image while the keyboard runs,
-        # so every one of them is built in (vim.c and crystal.c already are)
-        target_sources(app PRIVATE assets/cat.c assets/spaceman.c assets/head.c assets/pokemon.c assets/vip_marcos.c)
+        # so every one of them is built in (crystal.c already is). The still images vim and
+        # vip_marcos are retired kinds there (nothing in the layout path uses them any more).
+        target_sources(app PRIVATE assets/cat.c assets/spaceman.c assets/head.c assets/pokemon.c)
         # and the pictures that scripts/pictures/make_pictures.py makes (one file for each)
         file(GLOB picture_sources ${CMAKE_CURRENT_SOURCE_DIR}/assets/pictures/*.c)
         target_sources(app PRIVATE ${picture_sources})

@@ -29,6 +29,10 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include "profile.h"
 #include "screen.h"
 
+#if IS_ENABLED(CONFIG_KEYPAW_DISPLAY_SETTINGS)
+#include "pixel_shift.h"
+#endif
+
 #if IS_ENABLED(CONFIG_KEYPAW_OLED_LAYOUT)
 #include <zmk/events/display_settings_changed.h>
 #endif
@@ -1155,6 +1159,11 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
     lv_obj_t *canvas = lv_canvas_create(widget->obj);
     lv_obj_align(canvas, LV_ALIGN_TOP_LEFT, 0, 0);
     lv_canvas_set_buffer(canvas, widget->cbuf, CANVAS_HEIGHT, CANVAS_HEIGHT, LV_COLOR_FORMAT_L8);
+
+#if IS_ENABLED(CONFIG_KEYPAW_DISPLAY_SETTINGS)
+    // Anti burn-in: the canvas moves a pixel at a time, as the display settings say (ZMK Studio)
+    pixel_shift_init(widget->obj, canvas, LVGL_BACKGROUND);
+#endif
 
     sys_slist_append(&widgets, &widget->node);
 

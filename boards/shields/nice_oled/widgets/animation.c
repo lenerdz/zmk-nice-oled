@@ -170,9 +170,6 @@ const lv_img_dsc_t *pokemon_imgs[] = {
     &pokemon_44, &pokemon_45, &pokemon_46, &pokemon_47,
 };
 
-LV_IMG_DECLARE(vim);
-LV_IMG_DECLARE(vip_marcos);
-
 #elif IS_ENABLED(CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL)
 #if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_HEAD)
 
@@ -321,18 +318,17 @@ LV_IMG_DECLARE(vim);
 
 #if IS_ENABLED(CONFIG_KEYPAW_OLED_LAYOUT)
 
-// One entry per value of KP_OLED_R_ANIM_KIND (enum kp_oled_anim_kind of zmk-rgb-matrix)
+// One entry per value of KP_OLED_R_ANIM_KIND (enum kp_oled_anim_kind of zmk-rgb-matrix).
+// A retired kind (a picture that was taken out: vim, vip_marcos and most of the stills) has an
+// empty entry (count 0): no frames, and animation_apply() does not pick it.
 struct anim_def {
     const lv_img_dsc_t *const *frames;
-    // 1 is a still image
+    // 1 is a still image, 0 is a retired kind
     uint8_t count;
     // One cycle, as the animation is made for (the build's own animation takes
     // CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_MS instead)
     uint16_t ms;
 };
-
-static const lv_img_dsc_t *const vim_imgs[] = {&vim};
-static const lv_img_dsc_t *const vip_marcos_imgs[] = {&vip_marcos};
 
 // The pictures made by scripts/pictures/make_pictures.py (widgets/pictures.h): the kinds
 // after the ones of zmk-nice-oled
@@ -345,8 +341,6 @@ static const struct anim_def anims[KP_OLED_ANIM_KIND_COUNT] = {
     [KP_OLED_ANIM_HEAD] = {head_imgs, ARRAY_SIZE(head_imgs), 4800},
     [KP_OLED_ANIM_SPACEMAN] = {spaceman_imgs, ARRAY_SIZE(spaceman_imgs), 4800},
     [KP_OLED_ANIM_POKEMON] = {pokemon_imgs, ARRAY_SIZE(pokemon_imgs), 10000},
-    [KP_OLED_ANIM_VIM] = {vim_imgs, ARRAY_SIZE(vim_imgs), 0},
-    [KP_OLED_ANIM_VIP_MARCOS] = {vip_marcos_imgs, ARRAY_SIZE(vip_marcos_imgs), 0},
     PICTURES(PICTURE_ENTRY)
 };
 
@@ -425,8 +419,16 @@ void animation_apply(void) {
     }
 
     int kind = (int)kp_display_setting_get(KP_OLED_R_ANIM_KIND);
-    if (kind < 0 || kind >= KP_OLED_ANIM_KIND_COUNT) {
+    if (kind < 0 || kind >= KP_OLED_ANIM_KIND_COUNT || anims[kind].count == 0) {
+        // Not a kind, or a retired one (the keyboard does not accept it as a setting, and drops
+        // one that it had saved, but this is the screen: it must never draw from nothing)
         kind = (int)kp_display_setting_default(KP_OLED_R_ANIM_KIND);
+    }
+    if (kind < 0 || kind >= KP_OLED_ANIM_KIND_COUNT || anims[kind].count == 0) {
+        // Not even the default has frames (it cannot happen: it falls back to CRYSTAL)
+        k_work_cancel_delayable(&step_work);
+        applied_kind = -1;
+        return;
     }
 
     const struct anim_def *def = &anims[kind];

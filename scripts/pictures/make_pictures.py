@@ -27,12 +27,20 @@ is drawn: widgets/picture.c puts them on the canvas after that, and turns them b
 The kinds are numbered from FIRST_KIND, in the order of PICTURES below: the pictures of each batch
 of BATCHES (its animations, then its stills), the batches one after the other. The number is what
 the keyboard saves in its memory: ONLY ADD pictures at the end (a new batch, with its own
-animations2-like and stills2-like files), never reorder or remove, and add the same name to
+animations2-like and stills2-like files), never reorder, and add the same name to
 enum kp_oled_anim_kind (include/zmk/display_settings.h of zmk-rgb-matrix) with the same number,
 and raise KP_OLED_ANIM_KIND_COUNT. The first batch (animations.py, stills.py) is the kinds 7 to
 25, the second (animations2.py, stills2.py) the kinds 26 to 65. A name cannot repeat, and it
 cannot be one of the kinds of zmk-nice-oled either (crystal, cat, head, spaceman, pokemon, vim,
 vip_marcos), because the enum is made of the names.
+
+A picture is not removed from the list, because that would move the numbers of the ones after
+it: its entry in STILLS becomes None. The kind is then retired: it keeps its place and its name
+in the enum, no file or frames are made for it, it is not in the table PICTURES(X) of pictures.h
+(so widgets/animation.c has an empty entry for it), and pictures.json lists it under "retired".
+The module (kp_oled_anim_kind_retired() in display_settings.h) must list it as retired too, so
+that the keyboard does not accept it as a setting and forgets one that it had saved; --check
+--module tests that.
 
 Needs Python 3 and numpy; --preview also needs Pillow. The drawing does not use random numbers
 from numpy, so the pictures do not change with its version.
@@ -76,13 +84,14 @@ BATCHES = [
     (animations2.ANIMATIONS, stills2.STILLS),  # the kinds 26 to 65
 ]
 
-# The order is the number of the kind
+# The order is the number of the kind. A still whose function is None was taken out ("retired"):
+# it keeps its number and its name, and nothing is made for it
 PICTURES = []
 for _animations, _stills in BATCHES:
     for _name, (_fn, _ms) in _animations.items():
         PICTURES.append((_name, "animation", _fn, _ms))
     for _name, _fn in _stills.items():
-        PICTURES.append((_name, "still", _fn, 0))
+        PICTURES.append((_name, "still" if _fn is not None else "retired", _fn, 0))
 
 _names = [p[0] for p in PICTURES]
 for _name in _names:
@@ -93,8 +102,10 @@ for _name in _names:
 
 
 def frames_of(entry):
-    """The upright frames of a picture, as arrays of rows of 0 and 1."""
+    """The upright frames of a picture, as arrays of rows of 0 and 1 (none for a retired one)."""
     name, kind, fn, ms = entry
+    if kind == "retired":
+        return []
     result = fn()
     frames = list(result) if kind == "animation" else [result]
     if not frames:
@@ -200,7 +211,8 @@ def header_file(all_frames):
         " *",
         " * The pictures of the right screen that come after the ones of zmk-nice-oled (the OLED",
         " * layout of the lenerdz fork, CONFIG_KEYPAW_OLED_LAYOUT). widgets/animation.c includes this",
-        " * file once, and builds its table of kinds from PICTURES(). */",
+        " * file once, and builds its table of kinds from PICTURES(). A retired kind (a picture that",
+        " * was taken out) has no frames and no row here: its entry of that table stays empty. */",
         "#ifndef NICE_OLED_PICTURES_H",
         "#define NICE_OLED_PICTURES_H",
         "",
@@ -233,8 +245,18 @@ def header_file(all_frames):
 
 def manifest_file(all_frames):
     pictures = []
+    retired = []
     for number, (entry, frames) in enumerate(all_frames):
         name, kind, _fn, ms = entry
+        if kind == "retired":
+            retired.append(
+                {
+                    "name": name,
+                    "kind": FIRST_KIND + number,
+                    "enum": f"KP_OLED_ANIM_{name.upper()}",
+                }
+            )
+            continue
         h, w = frames[0].shape
         pictures.append(
             {
@@ -254,9 +276,11 @@ def manifest_file(all_frames):
         {
             "generator": "scripts/pictures/make_pictures.py",
             "first_kind": FIRST_KIND,
-            "kind_count": FIRST_KIND + len(pictures),
+            "kind_count": FIRST_KIND + len(all_frames),
             "total_bytes": sum(p["bytes"] for p in pictures),
             "pictures": pictures,
+            # Taken out: the kind keeps its number and its name, and there is no picture
+            "retired": retired,
         },
         indent=2,
     ) + "\n"
@@ -265,8 +289,10 @@ def manifest_file(all_frames):
 def outputs():
     """path -> text of every file that --write makes."""
     all_frames = [(entry, frames_of(entry)) for entry in PICTURES]
-    files = {os.path.join(ASSETS, f"{entry[0]}.c"): c_file(entry, frames) for entry, frames in all_frames}
-    files[HEADER] = header_file(all_frames)
+    # A retired picture has no frames, so no file and no row in the header
+    live = [(entry, frames) for entry, frames in all_frames if frames]
+    files = {os.path.join(ASSETS, f"{entry[0]}.c"): c_file(entry, frames) for entry, frames in live}
+    files[HEADER] = header_file(live)
     files[MANIFEST] = manifest_file(all_frames)
     return files, all_frames
 
@@ -291,6 +317,24 @@ def check_module(module, all_frames):
             problems.append(f"{want}: the enum has {found.get(want)}, it has to be {FIRST_KIND + number}")
     if count != FIRST_KIND + len(all_frames):
         problems.append(f"KP_OLED_ANIM_KIND_COUNT is {count}, it has to be {FIRST_KIND + len(all_frames)}")
+
+    # kp_oled_anim_kind_retired(): the kinds that it says are retired are the retired pictures
+    # here, plus the two stills that zmk-nice-oled itself had (vim, vip_marcos), and no other
+    fn = re.search(r"kp_oled_anim_kind_retired\([^)]*\)\s*\{(.*?)\n\}", text, re.S)
+    if fn is None:
+        problems.append("kp_oled_anim_kind_retired() is not in the module")
+        return problems
+    body = fn.group(1)
+    said = {found[n] for n in re.findall(r"case\s+(KP_OLED_ANIM_\w+)\s*:", body) if n in found}
+    for lo, hi in re.findall(r">=\s*(KP_OLED_ANIM_\w+)\s*&&\s*kind\s*<=\s*(KP_OLED_ANIM_\w+)", body):
+        if lo in found and hi in found:
+            said |= set(range(found[lo], found[hi] + 1))
+    want = {FIRST_KIND + number for number, (entry, _f) in enumerate(all_frames) if entry[1] == "retired"}
+    want |= {found["KP_OLED_ANIM_VIM"], found["KP_OLED_ANIM_VIP_MARCOS"]}
+    for kind in sorted(want - said):
+        problems.append(f"kind {kind} is retired here, kp_oled_anim_kind_retired() does not say so")
+    for kind in sorted(said - want):
+        problems.append(f"kind {kind} is retired in kp_oled_anim_kind_retired(), it is not here")
     return problems
 
 
@@ -314,6 +358,9 @@ def preview(directory, all_frames):
     still_tiles = []
     for entry, frames in all_frames:
         name = entry[0]
+        if not frames:
+            # Retired: nothing to look at
+            continue
         if len(frames) == 1:
             still_tiles.append(tile(frames[0]))
             continue
@@ -385,6 +432,9 @@ def main():
         print(f"{'kind':>4}  {'name':10} {'type':9} {'frames':>6}  {'size':>7}  {'ms':>5}  {'bytes':>6}")
         for number, (entry, frames) in enumerate(all_frames):
             name, kind, _fn, ms = entry
+            if not frames:
+                print(f"{FIRST_KIND + number:>4}  {name:10} {kind:9}")
+                continue
             h, w = frames[0].shape
             size = sum(8 + len(pack(stored(f))) for f in frames)
             total += size
